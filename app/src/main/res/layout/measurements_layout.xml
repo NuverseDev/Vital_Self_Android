@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/primary_background_color"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.TopRounded">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cr_scanning_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingVertical="@dimen/dp_18">
+
+            <TextView
+                android:id="@+id/tv_scanning_msg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginHorizontal="@dimen/dp_18"
+                android:textColor="@color/secondary_front_color"
+                android:textSize="18sp"
+                android:fontFamily="@font/inter_bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_scanning_error_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/secondary_front_color"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:text="testing ui field"
+                android:fontFamily="@font/inter_medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_scanning_msg" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                android:layout_marginHorizontal="@dimen/dp_18"
+                app:layout_constraintTop_toBottomOf="@+id/tv_scanning_error_desc"
+                tools:layout_editor_absoluteX="18dp">
+
+                <com.mackhartley.roundedprogressbar.RoundedProgressBar
+                    android:id="@+id/reading_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_25"
+                    android:layout_marginTop="@dimen/dp_15"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_scan_bpm_value"
+                    app:rpbBackgroundColor="#727272"
+                    app:rpbBackgroundTextColor="@color/white_both_theme"
+                    app:rpbCornerRadius="20dp"
+                    app:rpbProgressColor="@color/progress_color"
+                    app:rpbProgressTextColor="@color/white_both_theme"
+                    app:rpbTextPadding="12dp"
+                    app:rpbTextSize="@dimen/sp_17" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_scan_bpm_value"
+                    style="@style/TextStyle"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_medium"
+                    android:gravity="center_horizontal"
+                    android:scrollbars="vertical"
+                    android:text="0"
+                    android:textColor="@color/text_bg_color"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_bpm"
+                    style="@style/TextStyle"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_4"
+                    android:fontFamily="@font/inter_medium"
+                    android:gravity="center_horizontal"
+                    android:scrollbars="vertical"
+                    android:text="bpm"
+                    android:textColor="@color/text_bg_color"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_scan_bpm_value"
+                    app:layout_constraintStart_toEndOf="@+id/tv_scan_bpm_value" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_scan_time"
+                    style="@style/TextStyle"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_medium"
+                    android:gravity="center_horizontal"
+                    android:scrollbars="vertical"
+                    android:text="00:00"
+                    android:textColor="@color/text_bg_color"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_bpm" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_start_stop"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_50"
+                android:layout_marginHorizontal="@dimen/dp_18"
+                android:layout_marginVertical="@dimen/dp_18"
+                android:background="@drawable/bg_primary_button"
+                android:elevation="8dp"
+                android:shadowColor="@color/primary_shadow_color"
+                android:textColor="@color/primary_button_color"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+
+                <TextView
+                    android:id="@+id/tv_btn_start_stop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/inter_bold"
+                    android:gravity="center"
+                    android:text="Start"
+                    android:textColor="@color/secondary_front_color"
+                    android:textSize="@dimen/sp_18" />
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>

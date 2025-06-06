@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/main">
+
+        <include
+            android:id="@+id/tool"
+            layout="@layout/result_toolbar_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tool">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:id="@+id/collapsingToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                    app:contentScrim="@color/white"
+                    app:titleEnabled="false">
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="@dimen/dp_35">
+
+                        <LinearLayout
+                            android:id="@+id/layout_top"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+
+                            app:layout_collapseMode="parallax">
+
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardMale"
+                                android:layout_width="200dp"
+                                android:layout_height="200dp"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="12dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:cardBackgroundColor="@color/white"
+                                app:cardCornerRadius="125dp"
+                                app:cardElevation="18dp">
+
+                                <androidx.constraintlayout.widget.ConstraintLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <!-- Your Neumorphic Frame -->
+                                    <com.borutsky.neumorphism.NeumorphicFrameLayout
+                                        android:id="@+id/neumorphicFrameLayout"
+                                        android:layout_width="130dp"
+                                        android:layout_height="130dp"
+                                        app:background_color="@color/unpressed_background"
+                                        app:layout_constraintBottom_toBottomOf="parent"
+                                        app:layout_constraintEnd_toEndOf="parent"
+                                        app:layout_constraintStart_toStartOf="parent"
+                                        app:layout_constraintTop_toTopOf="parent"
+                                        app:shape="circle"
+                                        app:state="pressed">
+
+                                        <LinearLayout
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:orientation="vertical">
+
+                                            <TextView
+                                                android:id="@+id/tv_score"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/inter_bold"
+                                                android:gravity="center"
+                                                android:layout_gravity="center_horizontal"
+                                                android:textColor="@color/black"
+                                                android:textSize="22sp"
+                                                android:textStyle="bold"
+                                                 />
+
+                                            <TextView
+                                                android:id="@+id/tv_score_level"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/inter_bold"
+                                                android:gravity="center"
+                                                android:textColor="@color/black"
+                                                android:textSize="20sp"
+                                                android:textStyle="bold"
+                                                />
+                                        </LinearLayout>
+                                    </com.borutsky.neumorphism.NeumorphicFrameLayout>
+
+
+
+                                </androidx.constraintlayout.widget.ConstraintLayout>
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:id="@+id/wellness_score_top_header_desc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="@dimen/dp_12"
+                                android:layout_marginHorizontal="@dimen/dp_12"
+                                android:fontFamily="@font/inter_reguler"
+                                android:gravity="center"
+                                android:text="The measured indicators are not intended for medical use"
+                                android:textColor="@color/text_color"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            android:layout_width="235dp"
+                            android:layout_height="235dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="@dimen/dp_0"
+                           android:layout_marginBottom="19dp"
+                            android:background="@android:color/transparent"
+                            android:visibility="visible"
+                            android:indeterminateDrawable="@drawable/custom_progressbar"
+                            android:progress="100"
+                            />
+
+                        <!-- ProgressBar on top, centered -->
+
+                    </FrameLayout>
+
+
+
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <!-- Title below the AppBar -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                <TextView
+                    android:id="@+id/pageTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="9/10 Medium"
+                    android:fontFamily="@font/inter_bold"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:alpha="0"
+                    android:paddingVertical="@dimen/dp_8"
+                    android:gravity="center"
+                    android:background="#FFF"
+                    android:textColor="@color/secondary_theme_text_color"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="16dp"
+                    app:tabMode="scrollable"
+                    android:textSize="@dimen/sp_18"
+                    app:layout_constraintTop_toBottomOf="@id/pageTitle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:tabTextColor="@color/secondary_theme_text_color"
+                    app:tabSelectedTextColor="#FFFFFF"
+                    app:tabRippleColor="@null"
+                    app:tabIndicator="@null"
+                    app:tabBackground="@drawable/tab_background"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_8"
+                    android:layout_marginBottom="@dimen/dp_12"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tabLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

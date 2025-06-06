@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vitalsData"
+            type="com.vitalself.model.Model.VitalsData" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_sheet_background"
+        android:paddingBottom="32dp">
+
+        <!-- Handle -->
+        <View
+            android:id="@+id/handle"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="12dp"
+            android:background="#E0E0E0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Back button -->
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/handle" />
+
+        <!-- Happy emoji icon -->
+        <ImageView
+            android:id="@+id/img_emoji"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="@dimen/dp_6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btn_back"
+            tools:src="@drawable/ic_face_nutral" />
+
+        <!-- Heart Rate Title -->
+        <TextView
+            android:id="@+id/tv_vital_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#5F6368"
+            android:textSize="18sp"
+            android:layout_marginHorizontal="@dimen/dp_70"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_emoji"
+            tools:text="" />
+
+        <!-- Heart Rate Value -->
+        <TextView
+            android:id="@+id/tv_vital_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#202124"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_vital_name"
+            tools:text="59 bpm" />
+
+        <!-- Three separate progress bars with margins -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/progress_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="@dimen/dp_25"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_vital_value">
+
+            <!-- Low range progress (40-60) -->
+            <ProgressBar
+                android:id="@+id/progress_low"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="@dimen/dp_6"
+                android:layout_weight="1"
+                android:background="@color/medium_score_tv_color"
+                app:layout_constraintEnd_toStartOf="@+id/progress_normal"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Margin between progress bars -->
+
+            <!-- Normal range progress (60-100) -->
+            <ProgressBar
+                android:id="@+id/progress_normal"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="@dimen/dp_6"
+                android:layout_weight="1"
+                android:background="@color/high_score_color"
+                app:layout_constraintEnd_toStartOf="@+id/progress_high"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/progress_low"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Margin between progress bars -->
+
+            <!-- High range progress (100-240) -->
+            <ProgressBar
+                android:id="@+id/progress_high"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="6dp"
+                android:layout_weight="1"
+                android:background="@color/low_score_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/progress_normal"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_low_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="40"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@id/progress_container"
+                app:layout_constraintTop_toBottomOf="@id/progress_low" />
+
+            <TextView
+                android:id="@+id/tv_normal_low_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="60"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/progress_normal"
+                app:layout_constraintStart_toStartOf="@id/progress_normal"
+                app:layout_constraintTop_toBottomOf="@id/progress_normal" />
+
+            <TextView
+                android:id="@+id/tv_normal_high_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="100"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@id/progress_normal"
+                app:layout_constraintStart_toEndOf="@id/progress_normal"
+                app:layout_constraintTop_toBottomOf="@id/progress_normal" />
+
+            <TextView
+                android:id="@+id/tv_high_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="240"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@id/progress_high"
+                app:layout_constraintTop_toBottomOf="@id/progress_high" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/emojis_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_25"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progress_container"
+            >
+
+            <!-- Emoji 1 - Very Low -->
+            <ImageView
+                android:id="@+id/emojiVeryLow"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_face_normal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/emojiLow"
+                app:layout_constraintHorizontal_chainStyle="spread" />
+
+            <TextView
+                android:id="@+id/textVeryLow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Low"
+                android:visibility="gone"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/emojiVeryLow"
+                app:layout_constraintStart_toStartOf="@id/emojiVeryLow"
+                app:layout_constraintEnd_toEndOf="@id/emojiVeryLow" />
+
+            <!-- Emoji 2 - Low -->
+            <ImageView
+                android:id="@+id/emojiLow"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_face_nutral"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/emojiVeryLow"
+                app:layout_constraintEnd_toStartOf="@+id/emojiMedium" />
+
+            <TextView
+                android:id="@+id/textLow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Normal"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/emojiLow"
+                app:layout_constraintStart_toStartOf="@id/emojiLow"
+                app:layout_constraintEnd_toEndOf="@id/emojiLow" />
+
+            <!-- Emoji 3 - Medium -->
+            <ImageView
+                android:id="@+id/emojiMedium"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_face_mild"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/emojiLow"
+                app:layout_constraintEnd_toStartOf="@+id/emojiHigh" />
+
+            <TextView
+                android:id="@+id/textMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mild"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/emojiMedium"
+                app:layout_constraintStart_toStartOf="@id/emojiMedium"
+                app:layout_constraintEnd_toEndOf="@id/emojiMedium" />
+
+            <!-- Emoji 4 - High -->
+            <ImageView
+                android:id="@+id/emojiHigh"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_face_high"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/emojiMedium"
+                app:layout_constraintEnd_toStartOf="@+id/emojiVeryHigh" />
+
+            <TextView
+                android:id="@+id/textHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="High"
+                android:visibility="gone"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/emojiHigh"
+                app:layout_constraintStart_toStartOf="@id/emojiHigh"
+                app:layout_constraintEnd_toEndOf="@id/emojiHigh" />
+
+            <!-- Emoji 5 - Very High -->
+            <ImageView
+                android:id="@+id/emojiVeryHigh"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_face_very_high"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/emojiHigh"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/textVeryHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Very High"
+                android:visibility="gone"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/emojiVeryHigh"
+                app:layout_constraintStart_toStartOf="@id/emojiVeryHigh"
+                app:layout_constraintEnd_toEndOf="@id/emojiVeryHigh" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="@dimen/dp_18"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emojis_container">
+
+            <!-- Example Section -->
+            <TextView
+                android:id="@+id/tv_example_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Example: Normal Heart Rate"
+                android:visibility="gone"
+                android:textColor="#5F6368"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Heart Rate Wave Image -->
+            <ImageView
+                android:id="@+id/img_heart_wave"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                android:contentDescription="Heart rate wave visualization"
+                android:scaleType="center"
+                tools:src="@drawable/heart_wave"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_example_title" />
+
+            <!-- Additional Information -->
+            <TextView
+                android:id="@+id/tv_additional_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textColor="#5F6368"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/img_heart_wave"
+                tools:text="Think of your heart as a pump that pushes blood through your body. With every beat, the heart pumps blood containing oxygen and nutrients around the body and brings back waste products. A healthy heart supplies the body with the right amount of blood at a rate proportionate to whatever activity the body is undertaking." />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

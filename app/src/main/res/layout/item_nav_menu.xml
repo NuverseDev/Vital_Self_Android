@@ -1,0 +1,72 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/customMenuContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <!-- Profile -->
+        <View
+            android:id="@+id/dv_profile"
+            style="@style/DividerStyle" />
+
+        <TextView
+            android:id="@+id/menu_profile"
+            style="@style/CustomMenuItemStyle"
+            android:text="Profile"
+            android:padding="16dp"/>
+
+        <View
+            android:id="@+id/dv_history"
+            style="@style/DividerStyle" />
+
+        <!-- History -->
+        <TextView
+            android:id="@+id/menu_history"
+            style="@style/CustomMenuItemStyle"
+            android:text="History"
+            android:padding="16dp"/>
+
+        <View
+            android:id="@+id/dv_best_practices"
+            style="@style/DividerStyle" />
+
+        <!-- Help -->
+
+
+        <!-- About Us -->
+        <TextView
+            android:id="@+id/menu_scan_qr"
+            style="@style/CustomMenuItemStyle"
+            android:text="Scan QR"
+            android:padding="16dp"/>
+
+        <View
+            android:id="@+id/dv_scan_qr"
+            style="@style/DividerStyle" />
+
+        <TextView
+            android:id="@+id/menu_help"
+            style="@style/CustomMenuItemStyle"
+            android:text="Best Practices"
+            android:padding="16dp"/>
+
+        <View
+            android:id="@+id/dv_logout"
+            style="@style/DividerStyle" />
+
+        <!-- Logout (special at bottom) -->
+        <TextView
+            android:id="@+id/menu_logout"
+            style="@style/CustomMenuItemStyle"
+            android:text="Logout"
+            android:textColor="@color/red"
+            android:padding="16dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

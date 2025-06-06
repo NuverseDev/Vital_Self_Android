@@ -1,0 +1,277 @@
+<resources>
+    <string name="app_name">Vital Self</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="image_validity">Image Validity</string>
+    <string name="you_are_too_far">You are Too Far</string>
+    <string name="you_are_too_far_description">Please move closer to the camera.</string>
+    <string name="uneven_lightning">Uneven Lighting</string>
+    <string name="uneven_lightning_description">Please adjust your position for even lighting on your face.</string>
+    <string name="tilted_head">Titled Head</string>
+    <string name="tilted_head_description">Please keep your head straight and face the camera directly.</string>
+    <string name="face_not_detected">Face Not Detected</string>
+    <string name="face_not_detected_description">Please move closer make sure your face in the frame</string>
+    <string name="invalid_orientation">Invalid Orientation</string>
+    <string name="invalid_orientation_description">Please hold your device upright in portrait mode.</string>
+    <string name="face_scanning_msg">Please stay still and avoid unnecessary movements until face detection is complete.</string>
+    <string name="sit_still_during_the_measurement">Sit still during the measurement.</string>
+    <string name="avoid_moving_or_talk">Avoid moving or talking.</string>
+    <string name="stay_focused_on_screen">Stay focused on the screen.</string>
+    <string name="wait_until_end_for_best_result">Wait until the end for the best results.</string>
+    <string name="normal_prq_range">Normal PRQ range is 4 to 5.</string>
+    <string name="tracking_heart_rate_provide">Tracking heart rate can provide insight into fitness levels.</string>
+    <string name="normal_resting_heart_rate">Normal resting heart rate is 60 to 100 bpm.</string>
+    <string name="athletes_may_track_hrv">Athletes may track HRV to optimise their training program.</string>
+    <string name="high_levels_of_hrv">High levels of HRV generally indicate aerobic and general fitness.</string>
+    <string name="hold_on_all_the_result_will_appear">Hold on, all the results will appear in a few seconds.</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="_0">0</string>
+    <string name="n_a">N.A</string>
+    <string name="ok">Ok</string>
+    <string name="_stop">Stop</string>
+    <string name="stop_scan">Stop Scan</string>
+    <string name="stop_scan_message">The measurement is not complete yet. Are you sure to stop scanning?</string>
+    <string name="retry">Retry</string>
+    <string name="retry_message">Movements or other disruptions were identified. Try again, looking directly into the camera without moving, until the measurement is complete.</string>
+    <string name="try_again_btn">Try again</string>
+    <string name="error">Error</string>
+    <string name="data_not_collected">Vitals not collected properly</string>
+    <string name="required_vitals_not_collected">Required vitals not collected. Please try again</string>
+
+    <string name="heart_rate_desc">Your heart rate (or pulse rate) is the number of times the heart beats per minute (bpm). Heart rates vary from person to person. Heart rates are lower when at rest and increase during exercise.
+        \n\n
+        A normal heart rate for a healthy adult
+        at rest ranges from 60 to 80 beats per minute. A faster than average heart rate can indicate such health problems as infection, dehydration, stress, anxiety, a thyroid disorder, shock, anemia or certain heart conditions.
+        \n\n
+        A lower heart rate is also common for people who exercise frequently and participate in athletics.</string>
+
+    <string name="oxygen_desc">Indicates the amount of oxygen in the subject’s blood. The oxygen level is measured as a percentage.
+        \n\n
+        Normal values are between 95% – 100%. However, in the presence of some diseases, these ranges may not apply. Your doctor will let you know what’s normal for your specific condition.</string>
+
+    <string name="respiration_desc">The number of breaths taken per minute (Respirations per Minute, RPM) of the subject. The normal respiration rate for an adult at rest is 12 to 20 breaths per minute.
+        \n\n
+        A respiration rate under 12 or over 25 breaths per minute while resting is considered abnormal. Children have faster respiratory rates than adults, and the "normal" respiratory rate can vary significantly by age.
+        \n\n
+        The respiratory rate should be measured when a person is at rest and has not just engaged in vigorous activity. In general, respiratory rates are slightly faster in women than men.</string>
+
+    <string name="stress_desc">The application’s stress level measurement is based on Baevsky’s and US/European Index level measurements (globally approved) and is calculated using Heart Rate Variability (HRV) measurements.
+        \n\n
+        Stress levels are classified as: Low, Normal, Mild, High or Very High.
+        \n\n
+        These stress levels are indicative only and need to be corroborated with other parameters by your doctor before making a valid diagnosis. Stress levels are highly dynamic, and should be monitored over longer periods in order to detect abnormal trends.</string>
+
+    <string name="hrv_sdnn_desc">SDNN is a calculated parameter of Heart Rate Variability (HRV). HRV represents the variation in the time interval between heartbeats.
+            \n\n
+            SDNN is the standard deviation of the NN intervals, and is used as a leading indicator for HRV measurements.</string>
+
+    <string name="disclaimer_desc">
+        The measured indicators are not intended for medical use, including self-diagnosis or consultation with a doctor, and are only designed for general fitness and wellness purposes.</string>
+
+    <string name="prq_description">
+        The Pulse-Respiration Quotient (PRQ) is the ratio of pulse rate
+        (beats per minute) to respiratory rate (breaths per minute),
+        reflecting how efficiently the heart and lungs work together.
+        The normal PRQ is around 5, with a pulse of 60 bpm corresponding
+        to 12 rpm and 100 bpm to 20 rpm.
+        \n\n
+        Significant deviations may indicate inefficient heart or lung
+        function, suggesting the need to consult a physician. Abnormal
+        PRQ readings can also indicate pathophysiological states related
+        to disease or injury.
+    </string>
+
+    <string name="hypertension_risk_description">
+        Hypertension Risk assesses an individuals likelihood of developing
+        high blood pressure, which increases the risk of heart disease, stroke,
+        and other health issues. \n\n
+        Lifestyle changes, such as diet, exercise, and stress management,
+        are key to reducing hypertension risk. Regular monitoring and
+        consulting healthcare providers are essential for managing and
+        lowering this risk.
+    </string>
+    <string name="blood_pressure_description">
+        Blood pressure is the pressure of circulating blood against the
+        walls of blood vessels. Normal blood pressure for adults is defined
+        as a systolic pressure of less than 120 and a diastolic pressure
+        of less than 80.
+
+        Normal - &lt;120 &amp; &lt;80
+
+        Elevated -  120-129 &amp; &lt;80
+
+        High Blood Pressure Stage 1 -  130-139 or 80-89
+
+        High Blood Pressure Stage 2 -  &gt;140 or &gt;90
+
+        Hypertensive -  &gt;180 &amp;/or &gt;120
+    </string>
+    <string name="diabetes_risk_description">
+        Diabetes Risk assesses the likelihood of developing diabetes, using
+        parameters like HbA1c levels, which reflect average blood sugar over
+        the past three months. The risk is categorized as low, medium, or high.
+        \n\n
+        Elevated HbA1c levels indicate higher blood sugar, suggesting an
+        increased risk or presence of diabetes. Lifestyle changes, such as
+        diet and exercise, can help reduce this risk. Regular monitoring
+        and consultation with healthcare professionals are key for effective
+        management.
+    </string>
+    <string name="hemoglobin_description">
+        Hemoglobin is a protein in your red blood cells that carries oxygen to your body’s organs and tissues and transports carbon dioxide from your organs and tissues back to your lungs.
+        \n\n
+       If a hemoglobin test reveals that your hemoglobin level is lower than normal, it means you have a low red blood cell count (anemia). Anemia can have many different causes, including vitamin deficiencies, bleeding and chronic diseases.
+    </string>
+    <string name="hemoglobin_a1c_description">
+        When sugar enters your bloodstream, it attaches to hemoglobin, a protein in your red blood cells. Everybody has some sugar attached to their hemoglobin, but people with higher blood sugar levels have more.
+        \n\n
+
+        The A1C test measures the percentage of your red blood cells that have sugar-coated hemoglobin. This test is generally used to test for diabetes.
+    </string>
+    <string name="stress_level_desc">
+    The application’s stress level measurement is based on Baevsky’s and US/European Index level measurements (globally approved) and is calculated using Heart Rate Variability (HRV) measurements.
+    \n\n
+    Stress levels are classified as: Low, Normal, Mild, High or Very High.
+    \n\n
+    These stress levels are indicative only and need to be corroborated with other parameters by your doctor before making a valid diagnosis. Stress levels are highly dynamic, and should be monitored over longer periods in order to detect abnormal trends.
+    </string>
+    <string name="recovery_ability_description">
+        The parasympathetic nervous system (PNS) regulates the body’s “rest and digest” response and plays an important role in alleviating stress and promoting recovery.
+        \n\n
+        It does so by inhibiting the activity of the sympathetic nervous system and the release of stress hormones and returning bodily functions to their resting state by slowing the heart rate, lowering blood pressure, reducing muscle tension and restoring regular breathing, digestion and glandular activity.
+        \n\n
+        The stress metric measures the activity of the PNS and indicates how capable a person is of relaxing or recovering after a stressful occurrence. A low score would indicate a stressful state, while a high score would suggest a relaxed one.
+    </string>
+
+    <string name="stress_response_desc">
+        The parasympathetic nervous system (PNS) regulates the body’s “rest and digest” response and plays an important role in alleviating stress and promoting recovery.
+        \n\n
+        In normal and low zones the body is able to effectively respond to stressful situation and emergencies
+    </string>
+    <string name="wellness_score_description">
+    Your Wellness Score is based on your vital signs from a single measurement. Generally, a lower resting heart rate indicates better cardiovascular fitness and a higher Wellness Score. Heart rates above 65 reduce the score to medium, and above 84 to low. HRV (Heart Rate Variability) affects your score too—very high and high stress levels lower the score, while mild and normal stress levels keep it medium.
+
+    </string>
+
+    <string name="pns_description">
+        The PNS Index calculation is based on the following three parameters: Mean RRi, RMSSD, and SD1, and is used to indicate the body’s Recovery Ability zones.
+    </string>
+
+    <string name="sns_description">
+        The SNS index is calculated based on the following three parameters: Heart Rate, Baevsky’s stress index, SD2, and is used to set the stress response zone.
+    </string>
+
+    <string name="lf_hf_description">
+LF and HF stand for Low-Frequency and High-Frequency bands, which represent the Sympathetic and Parasympathetic activity, respectively.
+    </string>
+
+    <string name="sd2_description">
+SD2 is one of the parameters used to calculate the SNS Index, along with Heart Rate and Baevsky’s Stress Index.
+    </string>
+
+    <string name="sd1_description">
+        SD1 is one of the parameters used to calculate the PNS Index, along with RRi and RMSSD.
+    </string>
+
+    <string name="rmssd_description">
+An important measure of the Heart Rate Variability. RMSSD is the root mean square of successive RR interval differences. It reflects the beat-to-beat variance in the heart rate. RMSSD can help identify a general level of fatigue. In addition, a higher RMSSD is linked to parasympathetic control, a sign that you are in the “rest and digest” mode. A lower RMSSD is linked to elevated sympathetic activity, an indication of a Stress Response.
+    </string>
+    <string name="mean_rri_description">
+        Mean RRi is the average time between the RR intervals (RRi) in milliseconds. RRi is the variation of the interval between successive heartbeats. A longer Mean RR interval indicates a lower heart rate and higher parasympathetic cardiac activation.
+    </string>
+
+    <string name="high_fasting_glucose_risk_desc">
+         The High Fasting Glucose Risk shows if your blood sugar level is above normal after fasting for at least 8 hours.\n\n
+    Possible results: Low or High.\n
+    A High result means your fasting glucose is higher than healthy limits.\n\n
+    Glucose is the main source of energy for your body. Constantly high levels may suggest poor sugar control, which could be a sign of prediabetes or diabetes.\n\n
+    Keeping glucose balanced is important for good health. Since high sugar levels may not show clear symptoms, regular monitoring helps you stay on track.
+    </string>
+
+    <string name="high_total_cholesterol_risk_desc">
+        The High Total Cholesterol Risk shows if your cholesterol level is higher than normal.\n\n
+    Possible results: Low, Medium, or High.\n
+    Higher results mean your cholesterol level is above healthy limits.\n\n
+    Cholesterol is needed for body functions, but too much can cause fatty buildup in blood vessels.\n\n
+    Managing cholesterol is important to prevent heart diseases. Since high cholesterol usually has no symptoms, regular checks help you stay aware and take action when needed.
+    </string>
+
+    <string name="low_hemoglobin_risk_desc">
+        The Low Hemoglobin Risk shows if your hemoglobin level is below a safe limit.\n\n
+    Possible results: Low or High.\n
+    A High result means your hemoglobin is lower than the normal range.\n\n
+    Hemoglobin is a protein in red blood cells that carries oxygen from your lungs to the rest of your body. Low hemoglobin reduces your bodys ability to carry oxygen properly.\n\n
+    Healthy hemoglobin levels are important for energy, stamina, and overall health. Low levels can cause tiredness, dizziness, and shortness of breath.\n\n
+    Tracking this helps you detect and manage oxygen-related health issues early.
+    </string>
+
+    <string name="ascvd_risk_desc">
+        ASCVD (Atherosclerotic Cardiovascular Disease) Risk tells you the chance of having a heart-related event in the next 10 years.\n\n
+    The score is calculated using your vital signs and personal details:\n
+    • Age (within a valid range)\n
+    • Sex (Male or Female)\n
+    • BMI (calculated from your height and weight)\n
+    • Smoker (Yes or No)\n\n
+    This score matches closely with the official Framingham ASCVD risk.\n\n
+    The risk result will be shown as one of the following:\n
+    • Less than 1%\n
+    • Between 1% and 30%\n
+    • More than 30%
+    </string>
+
+    <string name="heart_age_desc">
+  The Framingham Heart Age helps you understand your heart health by comparing it to an average healthy person of the same sex.\n\n
+    It is based on your cardiovascular risk factors, like cholesterol, blood pressure, and smoking status. The heart age tells you the age of a healthy person with the same level of heart risk as you.\n\n
+    Interpretation:\n
+    1. Heart age equals your real age: Your heart health is average for your age.\n
+    2. Heart age is younger than your real age: Your heart is healthier than average.\n
+    3. Heart age is older than your real age: You may have a higher risk and should consider lifestyle changes or consult a doctor.
+    </string>
+
+    <string name="license_expired">
+        License Expired
+    </string>
+
+    <string name="license_expired_message">
+        License expired or scan limit exceeded. \nplease contact your provider.
+    </string>
+
+    <string name="header_text">
+        We use a method called Remote photoplethysmography (rPPG). That’s when you use light-based technology to sense the rate of blood flow, which is controlled by the heart.
+PPG has been used by healthcare professionals to track the heartbeat since 1972, and has been proven to be just as effective as ECG machines. It’s the technology behind pulse oximeters and is used in many wristbands and fitness trackers to track heart rate.
+    </string>
+    <string name="ascvd_desc">
+    ASCVD (Atherosclerotic Cardiovascular Disease) Risk estimates the likelihood of experiencing an atherosclerotic cardiovascular event within 10 years. The ASCVD score is calculated using Binah SDK\'s vital signs data combined with user demographic information, including:
+    1. Age - Within the Framingham-supported range 2. Sex - Male/Female
+    3. BMI (Height and weight)
+    4. Smoker - Yes/No
+    This score strongly correlates with the Framingham ASCVD score for predicting 10-year risk. The
+    ASCVD risk score will fall within one of the following categories:
+    1. Below 1%
+    2. Between 1%-30%
+    3. Above 30%
+ </string>
+
+
+    <string-array name="height_units">
+        <item>cm</item>
+        <item>ft/in</item>
+    </string-array>
+
+    <string name="point_one">
+        Sit still during measurement avoid moving or talking.
+    </string>
+    <string name="point_two">
+        Make sure your face is fully exposed and well lit.
+    </string>
+    <string name="point_three">
+        Ensure battery level is above 20% and device is not in power-save mode.
+    </string>
+    <string name="point_four">
+        Place the device about 30cm away from your face.
+    </string>
+    <string name="point_five">
+        Avoid uneven light, multiple light source or no light source directed toward the camera.
+    </string>
+
+</resources>
