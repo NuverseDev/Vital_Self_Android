@@ -11,7 +11,7 @@
 
         <variable
             name="adapter"
-            type="com.vitalself.adapter.HistoryAdapter" />
+            type="com.vital_self.adapter.HistoryAdapter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

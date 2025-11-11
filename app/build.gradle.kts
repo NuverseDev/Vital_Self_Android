@@ -13,15 +13,15 @@ val keystoreProperties =  Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace = "com.vitalself"
+    namespace = "com.vital_self"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.vitalself"
+        applicationId = "com.vital_self"
         minSdk = 29
         targetSdk = 35
-        versionCode = 2
-        versionName = "2"
+        versionCode = 3
+        versionName = "3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "APP_VERSION", "\"" + keystoreProperties["app_version"] + "\"")
         buildConfigField("String", "APP_VERSION_CODE", "\"" + keystoreProperties["version_code"] + "\"")

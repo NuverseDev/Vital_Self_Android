@@ -15,6 +15,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "vitalself"
+rootProject.name = "vital_self"
 include(":app")
 

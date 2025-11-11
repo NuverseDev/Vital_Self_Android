@@ -6,7 +6,7 @@
     <data>
         <variable
             name="vitalsData"
-            type="com.vitalself.model.Model.VitalsData" />
+            type="com.vital_self.model.Model" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
