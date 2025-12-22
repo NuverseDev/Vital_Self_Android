@@ -44,12 +44,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     fun setUpToolbar(toolbarLayout: ToolbarLayoutBinding) {
         this.toolbarLayout = toolbarLayout
-        if (isNightMode==true){
-            toolbarLayout.imgLogo.setImageDrawable(resources.getDrawable(R.drawable.ic_logo_vital_self_night))
-        }else{
-            toolbarLayout.imgLogo.setImageDrawable(resources.getDrawable(R.drawable.ic_logo_vital_self))
-        }
-
+        toolbarLayout.imgLogo.setImageDrawable(resources.getDrawable(R.drawable.ic_logo_vital_self))
         toolbarShadowView = toolbarLayout.shadowView
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)

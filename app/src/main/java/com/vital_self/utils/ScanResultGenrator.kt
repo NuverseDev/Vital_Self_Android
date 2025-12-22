@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.vital_self.R
 import com.vital_self.model.Model
-import com.vital_self.view.MeasurementResult
+import com.vital_self.view.scan.MeasurementResult
 
 object ScanResultGenrator {
 

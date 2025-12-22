@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.vital_self.R
 import com.vital_self.databinding.ItemHistoryListBinding
-import com.vital_self.view.MeasurementResult
+import com.vital_self.view.scan.MeasurementResult
 import com.vital_self.utils.BindingViewHolder
 import java.text.SimpleDateFormat
 import java.util.Date

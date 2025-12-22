@@ -13,29 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="34">
-        <activity
-            android:name=".view.MainActivity"
-            android:exported="true">
-        </activity>
-        <activity
-            android:name=".view.ScanHistory"
-            android:exported="true">
 
-        </activity>
-        <activity
-            android:name=".view.CaptureActivityPortrait"
-            android:exported="true">
-
-        </activity>
-        <activity
-            android:name=".view.QrScanActivity"
-            android:exported="true">
-
-        </activity>
-        <activity
-            android:name=".view.ActivityHowToScan"
-            android:exported="true">
-        </activity>
         <activity
             android:name=".view.SplashScreen"
             android:exported="true"
@@ -46,30 +24,46 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".view.ActivityUserLogin"
+            android:name=".view.auth.ActivityUserLogin"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize|adjustPan">
-        </activity>
+            android:windowSoftInputMode="adjustResize|adjustPan"/>
 
         <activity
-            android:name=".view.ActivityUserDetail"
-            android:exported="false">
-        </activity>
-        <activity
-            android:name=".view.VitalScanActivity"
-            android:exported="false">
+            android:name=".view.auth.ActivitySignUp"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize|adjustPan"/>
 
-        </activity>
         <activity
-            android:name=".view.VitalResultActivity2"
-            android:exported="false">
+            android:name=".view.profile.ActivityProfile"
+            android:exported="false"/>
 
-        </activity>
         <activity
-            android:name=".view.VitalResultActivity"
-            android:exported="false">
-        </activity>
+            android:name=".view.scan.VitalScanActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".view.scan.VitalResultActivity2"
+            android:exported="false"/>
+        <activity
+            android:name=".view.scan.VitalResultActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".view.history.ScanHistory"
+            android:exported="true"/>
+        <activity
+            android:name=".view.qr_code.CaptureActivityPortrait"
+            android:exported="true"/>
+        <activity
+            android:name=".view.qr_code.QrScanActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".view.utils.ActivityHowToScan"
+            android:exported="true"/>
+
+
+
 
 
         <provider

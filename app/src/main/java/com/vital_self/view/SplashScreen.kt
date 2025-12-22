@@ -8,25 +8,41 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
-import com.biosensesignal.sdk.BuildConfig
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.vital_self.R
 import com.vital_self.base.BaseActivity
 import com.vital_self.databinding.SplashScreenActivityBinding
+import com.vital_self.model.CheckVersionRequest
+import com.vital_self.model.Model
+import com.vital_self.network.Status
+import com.vital_self.repository.AuthRepository
+import com.vital_self.repository.factory.AuthFactory
 import com.vital_self.utils.AnimationsHandler
 import com.vital_self.utils.Pref
+import com.vital_self.view.auth.ActivityUserLogin
+import com.vital_self.view.scan.VitalScanActivity
+import com.vital_self.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class SplashScreen :  BaseActivity(){
 
     lateinit var binding: SplashScreenActivityBinding
+
+    private val authViewModel: AuthViewModel by viewModels {
+        AuthFactory(AuthRepository())
+    }
+
+    private var subject : Model.SubjectDetails? = null
 
     companion object {
         fun startActivity(activity: Activity) {
@@ -53,9 +69,51 @@ class SplashScreen :  BaseActivity(){
 
         animateLogoWithObjectAnimator()
 
-        Log.d("TAG", "onCreate: version ${BuildConfig.VERSION_NAME} ")
+        subject = Pref.subjectDetails
+
+        val checkAppVersion = CheckVersionRequest(
+            platform = Constant.PLATFORM,
+            app_version = com.vital_self.BuildConfig.APP_VERSION,
+            app_name =  Constant.APP_NAME
+        )
+        authViewModel.checkAppVersion(checkAppVersion,this)
+        Pref.isFirstTime = if (Pref.subjectDetails != null) false else true
+        observer()
+
     }
 
+    private fun observer(){
+        lifecycleScope.launch {
+            authViewModel.checkAppVersion.observe(this@SplashScreen, Observer {
+                when (it?.status) {
+                    Status.LOADING -> {
+//                            showHideProgress(it.data == null)
+                    }
+
+                    Status.SUCCESS -> {
+                        showHideProgress(false)
+                        try {
+                            if (it.data?.version_match == true){
+                                Pref.appVersionMatch = true
+                            }else{
+                                Pref.appVersionMatch = false
+                            }
+                        }catch (e: Exception){
+
+                        }
+                    }
+
+                    Status.ERROR -> {
+
+                    }
+
+                    else -> {
+                    }
+                }
+            })
+        }
+
+    }
 
     private fun animateLogoWithObjectAnimator() {
         val logoImage = binding.icLogo
@@ -79,6 +137,7 @@ class SplashScreen :  BaseActivity(){
         val animatorSet = AnimatorSet()
         animatorSet.playTogether(scaleX, scaleY, alpha)
         animatorSet.start()
+
         Handler(Looper.getMainLooper()).postDelayed({
             if (Pref.isLoggedIn) {
                 VitalScanActivity.startActivity(this)
@@ -87,9 +146,6 @@ class SplashScreen :  BaseActivity(){
             }
         }, 1800)
     }
-
-
-
 
 }
 

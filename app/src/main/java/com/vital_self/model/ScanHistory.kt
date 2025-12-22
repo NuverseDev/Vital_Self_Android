@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import com.vital_self.view.MeasurementResult
+import com.vital_self.view.scan.MeasurementResult
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

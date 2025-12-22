@@ -40,7 +40,7 @@ object BinahErrorMessage {
             }
 
             AlertCodes.LICENSE_CODE_METER_ATTRIBUTE_USES_LIMIT_REACHED_ERROR -> {
-                "Contact customer support."
+                "License limit reached. Please contact customer support."
             }
 
             AlertCodes.LICENSE_CODE_AUTHENTICATION_FAILED_ERROR -> {
