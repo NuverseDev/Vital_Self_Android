@@ -83,6 +83,7 @@ object Constant {
 
     const val PROFILE = "Profile"
     const val HISTORY = "History"
+    const val PACKAGES = "Packages"
     const val BEST_PRACTICES = "Best Practices"
 
     const val PLATFORM = "android"

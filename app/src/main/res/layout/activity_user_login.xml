@@ -20,6 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tool">
 
@@ -33,114 +34,171 @@
                 app:layout_constraintTop_toBottomOf="@id/tool">
 
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/layout_first_name"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layout_first_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="@dimen/dp_18"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_header_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/dp_18"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:enabled="false"
+                        android:fontFamily="@font/inter_bold"
+                        android:gravity="center"
+                        android:text="Hi, Welcome to VitalSelf"
+                        android:textColor="@color/secondary_front_color"
+                        android:textSize="@dimen/sp_24"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_username"
+                        style="@style/style_edit_text"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:layout_marginTop="@dimen/dp_20"
+                        android:drawableStart="@drawable/ic_person"
+                        android:fontFamily="@font/inter_reguler"
+                        android:hint="Username"
+                        android:imeOptions="actionNext"
+                        android:inputType="textPersonName"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toBottomOf="@+id/tv_header_text" />
 
-                        <ImageView
-                            android:id="@+id/ic_illstration"
-                            android:layout_width="match_parent"
-                            android:layout_height="250dp"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:src="@drawable/ic_illustration_login"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/button_next" />
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_pasword"
+                        style="@style/style_edit_text"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:layout_marginTop="@dimen/dp_18"
+                        android:drawableStart="@drawable/ic_password"
+                        android:fontFamily="@font/inter_reguler"
+                        android:hint="Password"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/et_username" />
+
+
+                    <TextView
+                        android:id="@+id/tv_cred_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:layout_marginTop="@dimen/dp_8"
+                        android:enabled="false"
+                        android:text="incorrect or empty please check username or password"
+                        android:textColor="@color/error_msg_text_color"
+                        android:textSize="@dimen/sp_14"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/et_pasword" />
+
+                    <TextView
+                        android:id="@+id/tv_forget_password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dp_12"
+                        android:enabled="false"
+                        android:fontFamily="@font/inter_medium"
+                        android:gravity="center"
+                        android:text="Did you forget your password?"
+                        android:textColor="@color/text_bg_color"
+                        android:textSize="@dimen/sp_14"
+                        app:layout_constraintStart_toStartOf="@+id/et_pasword"
+                        app:layout_constraintTop_toBottomOf="@id/tv_cred_error" />
+
+                    <TextView
+                        android:id="@+id/tv_forget_password_listener"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dp_8"
+                        android:layout_marginTop="@dimen/dp_12"
+                        android:fontFamily="@font/inter_medium"
+                        android:gravity="center"
+                        android:text="Forget Password"
+                        android:textColor="@color/theme_btn_clicked_color"
+                        android:textSize="@dimen/sp_14"
+                        app:layout_constraintStart_toEndOf="@+id/tv_forget_password"
+                        app:layout_constraintTop_toBottomOf="@id/tv_cred_error" />
+
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/button_next"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_50"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:layout_marginTop="@dimen/dp_25"
+                        android:background="@drawable/bg_primary_button"
+                        android:elevation="8dp"
+                        android:shadowColor="@color/primary_shadow_color"
+                        android:textColor="@color/primary_button_color"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_forget_password_listener">
 
                         <TextView
-                            android:id="@+id/tv_header_text"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:enabled="false"
+                            android:layout_height="match_parent"
                             android:fontFamily="@font/inter_bold"
                             android:gravity="center"
-                            android:text="Hi, Welcome to VitalSelf"
+                            android:text="Login"
                             android:textColor="@color/secondary_front_color"
-                            android:textSize="@dimen/sp_24"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:textSize="@dimen/sp_18" />
+                    </androidx.cardview.widget.CardView>
 
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_username"
-                            style="@style/style_edit_text"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:layout_marginTop="@dimen/dp_20"
-                            android:drawableStart="@drawable/ic_person"
-                            android:fontFamily="@font/inter_reguler"
-                            android:hint="Username"
-                            android:imeOptions="actionNext"
-                            android:inputType="textPersonName"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tv_header_text" />
+                    <ImageView
+                        android:id="@+id/ic_illstration"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_0"
+                        android:layout_marginHorizontal="@dimen/dp_18"
+                        android:layout_marginTop="@dimen/dp_12"
+                        android:src="@drawable/ic_illustration_login"
+                        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/button_next" />
 
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_pasword"
-                            style="@style/style_edit_text"
-                            android:layout_marginTop="@dimen/dp_18"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:drawableStart="@drawable/ic_password"
-                            android:fontFamily="@font/inter_reguler"
-                            android:hint="Password"
-                            android:imeOptions="actionDone"
-                            android:inputType="text"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/et_username" />
-
+                    <LinearLayout
+                        android:id="@+id/linearLayout2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/ic_illstration"
+                        app:layout_constraintStart_toStartOf="@+id/ic_illstration">
 
                         <TextView
-                            android:id="@+id/tv_cred_error"
-                            android:layout_width="match_parent"
+                            android:id="@+id/tv_sign_up"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/dp_8"
                             android:enabled="false"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:text="incorrect or empty please check username or password"
-                            android:textColor="@color/error_msg_text_color"
-                            android:textSize="@dimen/sp_14"
-                           android:visibility="gone"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/et_pasword" />
+                            android:fontFamily="@font/inter_medium"
+                            android:text="Don't have account?"
+                            android:textColor="@color/text_bg_color"
+                            android:textSize="@dimen/sp_14" />
+
+                        <TextView
+                            android:id="@+id/tv_sign_up_listener"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_8"
+                            android:fontFamily="@font/inter_medium"
+                            android:text="Signup"
+                            android:textColor="@color/theme_btn_clicked_color"
+                            android:textSize="@dimen/sp_14" />
+                    </LinearLayout>
 
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/button_next"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/dp_50"
-                            android:layout_marginHorizontal="@dimen/dp_18"
-                            android:layout_marginTop="@dimen/dp_25"
-                            android:background="@drawable/bg_primary_button"
-                            android:elevation="8dp"
-                            android:shadowColor="@color/primary_shadow_color"
-                            android:textColor="@color/primary_button_color"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tv_cred_error">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:fontFamily="@font/inter_bold"
-                                android:gravity="center"
-                                android:text="Login"
-                                android:textColor="@color/secondary_front_color"
-                                android:textSize="@dimen/sp_18" />
-                        </androidx.cardview.widget.CardView>
-
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

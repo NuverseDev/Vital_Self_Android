@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.compose)
     id("kotlin-parcelize")
 }
 
@@ -23,13 +24,32 @@ android {
         versionCode = 3
         versionName = "3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "APP_VERSION", "\"" + keystoreProperties["app_version"] + "\"")
         buildConfigField("String", "APP_VERSION_CODE", "\"" + keystoreProperties["version_code"] + "\"")
     }
 
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
+
     buildTypes {
+
+        debug {
+            isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", "\"" + keystoreProperties["DEBUG_BASE_URL"] + "\"")
+            buildConfigField("String", "VERSION", "\"" + keystoreProperties["app_version_debug"] + "\"")
+        }
+
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "BASE_URL", "\"" + keystoreProperties["RELEASE_BASE_URL"] + "\"")
+            buildConfigField("String", "VERSION", "\"" + keystoreProperties["app_version"] + "\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -51,7 +71,11 @@ android {
     buildFeatures {
         dataBinding = true
         viewBinding = true
+        compose = true
+        buildConfig = true
     }
+
+
 
 }
 
@@ -104,4 +128,26 @@ dependencies {
     implementation("com.github.MackHartley:RoundedProgressBar:3.0.0")
     implementation("com.google.zxing:core:3.5.2")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    // Compose BOM
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    // Compose Core
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.animation)
+
+    // Compose Integration
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.runtime.livedata)
+
+    // Debug
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }

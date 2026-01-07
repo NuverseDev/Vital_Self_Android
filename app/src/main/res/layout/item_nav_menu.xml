@@ -50,14 +50,27 @@
             style="@style/DividerStyle" />
 
         <TextView
+            android:id="@+id/menu_packages"
+            style="@style/CustomMenuItemStyle"
+            android:text="Packages"
+            android:padding="16dp"/>
+
+        <View
+            android:id="@+id/dv_packages"
+            style="@style/DividerStyle" />
+
+        <TextView
             android:id="@+id/menu_help"
             style="@style/CustomMenuItemStyle"
             android:text="Best Practices"
             android:padding="16dp"/>
 
+
         <View
             android:id="@+id/dv_logout"
             style="@style/DividerStyle" />
+
+
 
         <!-- Logout (special at bottom) -->
         <TextView

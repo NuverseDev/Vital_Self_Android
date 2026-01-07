@@ -105,6 +105,7 @@ import com.vital_self.view.auth.ActivityUserLogin
 import com.vital_self.view.history.ScanHistory
 import com.vital_self.view.profile.ActivityProfile
 import com.vital_self.view.qr_code.QrScanActivity
+import com.vital_self.view.packages.PackagesActivity
 import com.vital_self.view.utils.ActivityHowToScan
 import com.vital_self.viewmodel.AuthViewModel
 import kotlinx.android.parcel.Parcelize
@@ -186,7 +187,7 @@ class VitalScanActivity : BaseActivity(),
         }
         subject = Pref.subjectDetails
         val version = com.biosensesignal.sdk.BuildConfig.VERSION_NAME
-        Log.d(TAG, "onCreate: version ${BuildConfig.APP_VERSION} sdk version ${com.biosensesignal.sdk.BuildConfig.VERSION_NAME}")
+        Log.d(TAG, "onCreate: version ${BuildConfig.VERSION} sdk version ${com.biosensesignal.sdk.BuildConfig.VERSION_NAME}")
         Log.d(TAG, "onCreate: scan activity $subject is first ${Pref.isFirstTime} app ${Pref.appVersionMatch}")
         if (subject == null && Pref.isFirstTime == true && !Pref.appVersionMatch) {
             AlertDialogManager.showConfirmationDialog(this,
@@ -221,6 +222,7 @@ class VitalScanActivity : BaseActivity(),
         val menuHelp = navigationView.findViewById<TextView>(R.id.menu_help)
         val menuScanQR = navigationView.findViewById<TextView>(R.id.menu_scan_qr)
         val menuLogout = navigationView.findViewById<TextView>(R.id.menu_logout)
+        val packages = navigationView.findViewById<TextView>(R.id.menu_packages)
         val closeDrawer = navigationView.findViewById<ImageView>(R.id.close_icon)
 
         val menuProfiledv = navigationView.findViewById<View>(R.id.dv_profile)
@@ -228,14 +230,14 @@ class VitalScanActivity : BaseActivity(),
         val menuScandv = navigationView.findViewById<View>(R.id.dv_best_practices)
 
         Log.d(TAG, "onCreate: version name ${com.biosensesignal.sdk.BuildConfig.VERSION_NAME} version code ${com.biosensesignal.sdk.BuildConfig.VERSION_CODE}")
-        if (Pref.appVersionMatch){
-            menuHistory.visibility = View.GONE
-            menuScanQR.visibility = View.GONE
-            menuProfile.visibility = View.GONE
-            menuProfiledv.visibility = View.GONE
-            menuHistorydv.visibility = View.GONE
-            menuScandv.visibility = View.GONE
-        }
+//        if (Pref.appVersionMatch){
+//            menuHistory.visibility = View.GONE
+//            menuScanQR.visibility = View.GONE
+//            menuProfile.visibility = View.GONE
+//            menuProfiledv.visibility = View.GONE
+//            menuHistorydv.visibility = View.GONE
+//            menuScandv.visibility = View.GONE
+//        }
 
         menuProfile.setOnClickListener {
             ActivityProfile.startActivity(this,Constant.PROFILE)
@@ -246,6 +248,11 @@ class VitalScanActivity : BaseActivity(),
         }
         menuHistory.setOnClickListener {
             ScanHistory.startActivity(this,Constant.HISTORY)
+            drawerLayout.closeDrawers()
+        }
+
+        packages.setOnClickListener {
+            PackagesActivity.startActivity(this)
             drawerLayout.closeDrawers()
         }
 
@@ -398,7 +405,7 @@ class VitalScanActivity : BaseActivity(),
 
     override fun onResume() {
         super.onResume()
-        authViewmodel.getUserById(Pref.user?.userId!!,this)
+//        authViewmodel.getUserById(Pref.user?.userId!!,this)
     }
 
     override fun onStart() {
@@ -434,7 +441,8 @@ class VitalScanActivity : BaseActivity(),
     private fun createSession() {
         try {
             Log.d(TAG, "createSession: user ${Pref.user}")
-            val key = if (Pref.user?.userKey.isNullOrBlank()) Pref.user?.licenseKey else Pref.user?.userKey
+//            val key = if (Pref.user?.userKey.isNullOrBlank()) Pref.user?.licenseKey else Pref.user?.userKey
+            val key = "77BFAD-C3EA7E-4FDB92-9553AE-8B8C3C-54BD70"
             val licenseDetails = LicenseDetails(key)
             Log.d(TAG, "createSession: key $key")
             if (subject != null){

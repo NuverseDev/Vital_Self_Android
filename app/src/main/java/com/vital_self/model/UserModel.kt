@@ -10,6 +10,12 @@ data class UserRequest(
     val userId : Int
 )
 
+data class UserRegisterRequest(
+    val userName : String,
+    val email : String,
+    val password : String
+)
+
 data class GetUserResponse(
     val message : String,
     val data : UserModel

@@ -5,43 +5,42 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.widget.doAfterTextChanged
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.vital_self.R
-import com.vital_self.base.BaseActivity
-import com.vital_self.databinding.ActivityUserLoginBinding
-import com.vital_self.model.UserLoginRequest
+import com.vital_self.enums.LoginEnum
+import com.vital_self.model.AuthResponse
+import com.vital_self.model.ForgotPasswordRequest
+import com.vital_self.model.LoginRequest
 import com.vital_self.network.NetworkErrorCode
 import com.vital_self.network.Status
 import com.vital_self.repository.AuthRepository
-import com.vital_self.repository.ScanRepository
 import com.vital_self.repository.factory.AuthFactory
+import com.vital_self.ui.components.common.LoadingDialog
+import com.vital_self.ui.screens.auth.dialogs.ForgetPasswordDialog
+import com.vital_self.ui.screens.auth.login.LoginScreenContent
+import com.vital_self.ui.screens.auth.login.LoginScreenEvent
+import com.vital_self.ui.screens.auth.login.LoginScreenState
+import com.vital_self.ui.theme.VitalSelfTheme
+import com.vital_self.utils.AlertDialogManager
 import com.vital_self.utils.AnimationsHandler
 import com.vital_self.utils.DialogClickListener
-import com.vital_self.repository.factory.ScanViewModelFactory
-import com.vital_self.utils.AlertDialogManager
-import com.vital_self.viewmodel.ScanViewModel
 import com.vital_self.utils.Pref
 import com.vital_self.view.scan.VitalScanActivity
 import com.vital_self.viewmodel.AuthViewModel
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-class ActivityUserLogin :  BaseActivity(){
-
-    lateinit var binding: ActivityUserLoginBinding
+class ActivityUserLogin : ComponentActivity() {
 
     private val authViewModel: AuthViewModel by viewModels {
         AuthFactory(AuthRepository())
@@ -64,147 +63,177 @@ class ActivityUserLogin :  BaseActivity(){
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_user_login)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
-        initUi()
-        observer()
-        listners()
+        setContent {
+            VitalSelfTheme(darkTheme = false) {
+                var screenState by remember { mutableStateOf(LoginScreenState()) }
+                var showForgetPasswordDialog by remember { mutableStateOf(false) }
 
-    }
+                val loginData by authViewModel.loginData.observeAsState()
+                val forgotPasswordData by authViewModel.forgotPasswordData.observeAsState()
 
-    private fun initUi(){
-        binding.tool.btnBack.visibility = View.GONE
-        binding.buttonNext.apply {
-            this.isEnabled = true
-            setBackgroundResource(R.drawable.bg_primary_button)
-        }
-    }
-
-    private fun listners() {
-
-        binding.etUsername.doAfterTextChanged {
-            showHideError(binding.tvCredError,false)
-        }
-        binding.etPasword.doAfterTextChanged {
-            showHideError(binding.tvCredError,false)
-        }
-
-        binding.buttonNext.setOnClickListener {
-            val username = binding.etUsername.text.toString()
-            val password = binding.etPasword.text.toString()
-            val error = validateLogin(username,password)
-
-            when (error) {
-                USERLOGIN.INVALID_USERNAME -> {
-                    showHideError(binding.tvCredError, true)
-                    return@setOnClickListener
+                // Handle Login API response
+                LaunchedEffect(loginData) {
+                    when (loginData?.status) {
+                        Status.LOADING -> {
+                            screenState = screenState.copy(isLoading = true)
+                        }
+                        Status.SUCCESS -> {
+                            screenState = screenState.copy(isLoading = false)
+                            handleLoginSuccess(loginData?.data)
+                        }
+                        Status.ERROR -> {
+                            screenState = screenState.copy(isLoading = false)
+                            showErrorDialog(loginData?.message ?: "Login failed")
+                        }
+                        else -> {}
+                    }
                 }
-                USERLOGIN.INVALID_PASSWORD -> {
-                    showHideError(binding.tvCredError, true)
-                    return@setOnClickListener
-                }
-                USERLOGIN.VALID -> {
-                    showHideError(binding.tvCredError, false)
-                    val userRequest = UserLoginRequest(userName = username, password = password)
-                    Log.d("TAG", "listners: login req $userRequest")
-                    authViewModel.getUser(userRequest,this)
 
+                // Handle Forgot Password API response
+                LaunchedEffect(forgotPasswordData) {
+                    when (forgotPasswordData?.status) {
+                        Status.LOADING -> {
+                            screenState = screenState.copy(isLoading = true)
+                        }
+                        Status.SUCCESS -> {
+                            screenState = screenState.copy(isLoading = false)
+                            showForgetPasswordDialog = false
+                            showSuccessDialog(forgotPasswordData?.data?.message ?: "Password reset link sent")
+                            authViewModel.resetForgotPasswordState()
+                        }
+                        Status.ERROR -> {
+                            screenState = screenState.copy(isLoading = false)
+                            showErrorDialog(forgotPasswordData?.message ?: "Failed to send reset link")
+                            authViewModel.resetForgotPasswordState()
+                        }
+                        else -> {}
+                    }
+                }
+
+                LoginScreenContent(
+                    state = screenState,
+                    onEvent = { event ->
+                        when (event) {
+                            is LoginScreenEvent.UsernameChanged -> {
+                                screenState = screenState.copy(
+                                    username = event.value,
+                                    showError = false
+                                )
+                            }
+                            is LoginScreenEvent.PasswordChanged -> {
+                                screenState = screenState.copy(
+                                    password = event.value,
+                                    showError = false
+                                )
+                            }
+                            LoginScreenEvent.LoginClicked -> {
+                                val error = validateLogin(screenState.username, screenState.password)
+                                when (error) {
+                                    LoginEnum.VALID -> {
+                                        val request = LoginRequest(
+                                            email = screenState.username,
+                                            password = screenState.password
+                                        )
+                                        authViewModel.loginUser(request, this)
+                                    }
+                                    else -> {
+                                        screenState = screenState.copy(showError = true)
+                                    }
+                                }
+                            }
+                            LoginScreenEvent.ForgetPasswordClicked -> {
+                                showForgetPasswordDialog = true
+                            }
+                            LoginScreenEvent.SignUpClicked -> {
+                                ActivitySignUp.startActivity(this)
+                            }
+                            LoginScreenEvent.DismissError -> {
+                                screenState = screenState.copy(showError = false)
+                            }
+                        }
+                    }
+                )
+
+                // Loading Dialog
+                LoadingDialog(isVisible = screenState.isLoading)
+
+                // Forget Password Dialog
+                if (showForgetPasswordDialog) {
+                    ForgetPasswordDialog(
+                        onDismiss = { showForgetPasswordDialog = false },
+                        onSubmit = { email ->
+                            Log.d("TAG", "onSubmit: email entered $email")
+                            val request = ForgotPasswordRequest(email = email)
+                            authViewModel.forgotPassword(request, this)
+                        }
+                    )
                 }
             }
         }
     }
 
-    private fun showHideError(view: TextView, isErrorEnable: Boolean) {
-        if (isErrorEnable) {
-            view.visibility = View.VISIBLE
-        } else {
-            view.visibility = View.GONE
+    private fun validateLogin(username: String, password: String): LoginEnum {
+        return when {
+            username.isEmpty() || username.isBlank() -> LoginEnum.INVALID_USERNAME
+            password.isEmpty() || password.isBlank() -> LoginEnum.INVALID_PASSWORD
+            else -> LoginEnum.VALID
         }
     }
 
-
-    private fun observer(){
-
-        lifecycleScope.launch {
-            authViewModel.userData.observe(this@ActivityUserLogin, Observer {
-                when (it?.status) {
-                    Status.LOADING -> {
-                        showHideProgress(it.data == null)
-                    }
-
-                    Status.SUCCESS -> {
-                        Log.d("TAG", "observer: getuser ")
-                        showHideProgress(false)
-                        try {
-                            if (it.data?.data?.availableScan!! > 0 && it.data.data.status == true){
-                                Pref.user = it.data.data
-                                Pref.isLoggedIn = true
-                                Pref.isFirstTime = true
-                                VitalScanActivity.startActivity(this@ActivityUserLogin)
-                            }else{
-                                AlertDialogManager.showConfirmationDialog(this@ActivityUserLogin,
-                                    title = getString(R.string.license_expired),
-                                    message = getString(R.string.license_expired_message),
-                                    buttonMessage = getString(R.string.ok),
-                                    cancelable = true,
-                                    isDissable = true,
-                                    dialogClickListener = object : DialogClickListener {
-                                        override fun onButton1Clicked() {
-
-                                        }
-                                    })
-                            }
-                        }catch (e: Exception){
-                            Log.d("TAG", "getUserById:catch ")
-                            Toast.makeText(this@ActivityUserLogin,e.message, Toast.LENGTH_LONG).show()
-                        }
-                    }
-
-                    Status.ERROR -> {
-                        Log.d("TAG", "getUserById:error ")
-                        showHideProgress(false)
-                        AlertDialogManager.showConfirmationDialog(this@ActivityUserLogin,
-                            title = getString(R.string.error),
-                            message = NetworkErrorCode.getNetworkError(it.code,null),
-                            buttonMessage = getString(R.string.ok),
-                            cancelable = true,
-                            dialogClickListener = object : DialogClickListener {
-                                override fun onButton1Clicked() {
-
-                                }
-                            })
-                    }
-
-                    else -> {
-                    }
-                }
-            })
+    private fun handleLoginSuccess(data: AuthResponse?) {
+        try {
+            if (data?.status == true && data.data != null) {
+                Pref.authUser = data.data.user
+                Pref.authToken = data.data.token
+                Pref.isLoggedIn = true
+                Pref.isFirstTime = true
+                VitalScanActivity.startActivity(this)
+            } else {
+                showErrorDialog(data?.message ?: "Login failed")
+            }
+        } catch (e: Exception) {
+            Log.d("TAG", "handleLoginSuccess catch: ${e.message}")
+            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun validateLogin(
-        username: String,
-        password:String,
-    ): USERLOGIN {
+    private fun showErrorDialog(message: String) {
+        AlertDialogManager.showConfirmationDialog(
+            this,
+            title = getString(R.string.error),
+            message = message,
+            buttonMessage = getString(R.string.ok),
+            cancelable = true,
+            dialogClickListener = object : DialogClickListener {
+                override fun onButton1Clicked() {}
+            }
+        )
+    }
 
-        if (username.isEmpty() || username.isBlank()) {
-            return USERLOGIN.INVALID_USERNAME
-        } else if (password.isEmpty() || password.isBlank()) {
-            return USERLOGIN.INVALID_PASSWORD
-        } else {
-            return USERLOGIN.VALID
-        }
+    private fun showSuccessDialog(message: String) {
+        AlertDialogManager.showConfirmationDialog(
+            this,
+            title = "Success",
+            message = message,
+            buttonMessage = getString(R.string.ok),
+            cancelable = true,
+            dialogClickListener = object : DialogClickListener {
+                override fun onButton1Clicked() {}
+            }
+        )
+    }
+
+    private fun showLicenseExpiredDialog() {
+        AlertDialogManager.showConfirmationDialog(
+            this,
+            title = getString(R.string.license_expired),
+            message = getString(R.string.license_expired_message),
+            buttonMessage = getString(R.string.ok),
+            cancelable = true,
+            isDissable = true,
+            dialogClickListener = object : DialogClickListener {
+                override fun onButton1Clicked() {}
+            }
+        )
     }
 }
-
-enum class USERLOGIN {
-    INVALID_USERNAME,
-    INVALID_PASSWORD,
-    VALID
-}
-

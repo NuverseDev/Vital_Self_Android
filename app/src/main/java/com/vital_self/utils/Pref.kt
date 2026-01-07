@@ -6,6 +6,7 @@ import com.vital_self.MyApplication
 import com.vital_self.R
 import com.vital_self.model.Model
 import com.google.gson.Gson
+import com.vital_self.model.AuthUser
 import com.vital_self.model.UserModel
 
 object Pref {
@@ -18,6 +19,8 @@ object Pref {
         const val IS_FIRST_TIME = "is_first_time"
         const val SUBJECT = "subject"
         const val USER = "user"
+        const val AUTH_USER = "auth_user"
+        const val AUTH_TOKEN = "auth_token"
         const val APP_VERSION_MATCH = "app_version_match"
         const val IS_R_PASS = "is_R_Pass"
         const val Face_SESSION_DURATION = 540000L
@@ -91,6 +94,34 @@ object Pref {
             } else {
                 val json = Gson().toJson(value)
                 editor.putString(PrefConstant.USER, json)
+            }
+            editor.apply()
+        }
+
+    var authUser: AuthUser?
+        get() {
+            val json = prefs.getString(PrefConstant.AUTH_USER, null)
+            return if (json != null) Gson().fromJson(json, AuthUser::class.java) else null
+        }
+        set(value) {
+            val editor = prefs.edit()
+            if (value == null) {
+                editor.remove(PrefConstant.AUTH_USER)
+            } else {
+                val json = Gson().toJson(value)
+                editor.putString(PrefConstant.AUTH_USER, json)
+            }
+            editor.apply()
+        }
+
+    var authToken: String?
+        get() = prefs.getString(PrefConstant.AUTH_TOKEN, null)
+        set(value) {
+            val editor = prefs.edit()
+            if (value == null) {
+                editor.remove(PrefConstant.AUTH_TOKEN)
+            } else {
+                editor.putString(PrefConstant.AUTH_TOKEN, value)
             }
             editor.apply()
         }

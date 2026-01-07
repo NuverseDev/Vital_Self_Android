@@ -43,6 +43,9 @@
             android:name=".view.scan.VitalScanActivity"
             android:exported="false"/>
         <activity
+            android:name=".view.packages.PackagesActivity"
+            android:exported="false"/>
+        <activity
             android:name=".view.scan.VitalResultActivity2"
             android:exported="false"/>
         <activity
