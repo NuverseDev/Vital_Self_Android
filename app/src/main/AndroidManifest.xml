@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".MyApplication"
+        android:name=".VitalSelfApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,7 +15,7 @@
         tools:targetApi="34">
 
         <activity
-            android:name=".view.SplashScreen"
+            android:name=".features.splash.presentation.SplashActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize|adjustPan">
             <intent-filter>
@@ -26,48 +26,41 @@
         </activity>
 
         <activity
-            android:name=".view.auth.ActivityUserLogin"
+            android:name=".features.auth.presentation.login.ActivityUserLogin"
             android:exported="true"
             android:windowSoftInputMode="adjustResize|adjustPan"/>
 
         <activity
-            android:name=".view.auth.ActivitySignUp"
+            android:name=".features.auth.presentation.signup.ActivitySignUp"
             android:exported="true"
             android:windowSoftInputMode="adjustResize|adjustPan"/>
 
         <activity
-            android:name=".view.profile.ActivityProfile"
+            android:name=".features.profile.presentation.ActivityProfile"
             android:exported="false"/>
 
         <activity
-            android:name=".view.scan.VitalScanActivity"
+            android:name=".features.scan.presentation.scan.VitalScanActivity"
             android:exported="false"/>
         <activity
-            android:name=".view.packages.PackagesActivity"
+            android:name=".features.packages.presentation.PackagesActivity"
             android:exported="false"/>
         <activity
-            android:name=".view.scan.VitalResultActivity2"
-            android:exported="false"/>
-        <activity
-            android:name=".view.scan.VitalResultActivity"
+            android:name=".features.scan.presentation.result.VitalResultActivity2"
             android:exported="false"/>
 
         <activity
-            android:name=".view.history.ScanHistory"
+            android:name=".features.history.presentation.ScanHistoryActivity"
             android:exported="true"/>
         <activity
-            android:name=".view.qr_code.CaptureActivityPortrait"
+            android:name=".features.qrcode.presentation.CaptureActivityPortrait"
             android:exported="true"/>
         <activity
-            android:name=".view.qr_code.QrScanActivity"
+            android:name=".features.qrcode.presentation.QrScanActivity"
             android:exported="true"/>
         <activity
-            android:name=".view.utils.ActivityHowToScan"
+            android:name=".features.onboarding.presentation.ActivityHowToScan"
             android:exported="true"/>
-
-
-
-
 
         <provider
             android:name="androidx.core.content.FileProvider"
