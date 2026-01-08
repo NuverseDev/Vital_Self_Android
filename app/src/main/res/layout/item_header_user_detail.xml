@@ -89,17 +89,18 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
+                    android:id="@+id/layout_details_row"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/dp_12"
                     android:orientation="horizontal"
-                    android:weightSum="4"
                     app:layout_constraintTop_toBottomOf="@id/vital_name">
 
                     <LinearLayout
+                        android:id="@+id/layout_bmi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/dp_16"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/vital_name">
 
@@ -134,9 +135,10 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layout_gender"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/dp_16"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/vital_name">
 
@@ -171,9 +173,10 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layout_height"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/dp_16"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/vital_name">
 
@@ -207,9 +210,9 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layout_weight"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/vital_name">
 
@@ -219,7 +222,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
                             android:ellipsize="end"
-                            android:text="weight"
+                            android:text="Weight"
                             android:textColor="@color/default_btn_bg_color"
                             android:textSize="@dimen/sp_12"
                             android:textStyle="bold"
