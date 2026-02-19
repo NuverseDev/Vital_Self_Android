@@ -11,13 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -26,8 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vital_self.R
@@ -42,6 +47,7 @@ import com.vital_self.core.ui.theme.ThemeColor
 import com.vital_self.core.ui.theme.White
 
 // Enum for tracking which field has error
+
 enum class ProfileFieldError {
     NONE, NAME, AGE, HEIGHT, WEIGHT, GENDER
 }
@@ -59,7 +65,8 @@ data class ProfileScreenState(
     val isLoading: Boolean = false,
     val showError: Boolean = false,
     val errorField: ProfileFieldError = ProfileFieldError.NONE,
-    val errorMessage: String = "Please fill in all required fields"
+    val errorMessage: String = "Please fill in all required fields",
+    val isDoctor: Boolean = false
 )
 
 // Events sealed class
@@ -75,6 +82,15 @@ sealed class ProfileScreenEvent {
     data object SaveClicked : ProfileScreenEvent()
     data object BackClicked : ProfileScreenEvent()
     data object DismissError : ProfileScreenEvent()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    ProfileScreenContent(
+        state = ProfileScreenState(),
+        onEvent = {}
+    )
 }
 
 @Composable
@@ -121,6 +137,12 @@ fun ProfileScreenContent(
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
+
+                // Doctor Badge (non-editable)
+                if (state.isDoctor) {
+                    DoctorBadge()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 // Full Name
                 FieldLabel(label = "Full name")
@@ -313,4 +335,41 @@ private fun FieldLabel(label: String) {
         color = SecondaryFrontColor,
         modifier = Modifier.padding(start = 4.dp)
     )
+}
+
+@Composable
+private fun DoctorBadge() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = ThemeColor.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_person),
+            contentDescription = "Doctor",
+            tint = ThemeColor,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = "Account Type",
+                fontSize = 12.sp,
+                fontFamily = InterFamily,
+                color = SecondaryFrontColor.copy(alpha = 0.7f)
+            )
+            Text(
+                text = "Doctor",
+                fontSize = 16.sp,
+                fontFamily = InterFamily,
+                fontWeight = FontWeight.Medium,
+                color = ThemeColor
+            )
+        }
+    }
 }

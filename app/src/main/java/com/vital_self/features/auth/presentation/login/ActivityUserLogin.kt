@@ -186,9 +186,10 @@ class ActivityUserLogin : ComponentActivity() {
             if (data?.status == true && data.data != null) {
                 PreferenceManager.authUser = data.data.user
                 PreferenceManager.authToken = data.data.accessToken
+                PreferenceManager.Key = data.data.key
                 Log.d("TAG", "token: login ${PreferenceManager.authToken}")
                 PreferenceManager.isLoggedIn = true
-                PreferenceManager.isFirstTime = true
+
                 VitalScanActivity.startActivity(this)
             } else {
                 showErrorDialog(data?.message ?: "Login failed")
@@ -225,17 +226,4 @@ class ActivityUserLogin : ComponentActivity() {
         )
     }
 
-    private fun showLicenseExpiredDialog() {
-        AlertDialogManager.showConfirmationDialog(
-            this,
-            title = getString(R.string.license_expired),
-            message = getString(R.string.license_expired_message),
-            buttonMessage = getString(R.string.ok),
-            cancelable = true,
-            isDissable = true,
-            dialogClickListener = object : DialogClickListener {
-                override fun onButton1Clicked() {}
-            }
-        )
-    }
 }

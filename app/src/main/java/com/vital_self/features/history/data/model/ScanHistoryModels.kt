@@ -1,7 +1,6 @@
 package com.vital_self.features.history.data.model
 
 import com.google.gson.annotations.SerializedName
-import com.vital_self.features.scan.presentation.scan.MeasurementResult
 
 // Response for /api/user/scan-history-by-date?date=YYYY-MM-DD
 data class ScanHistoryByDateResponse(
@@ -64,48 +63,3 @@ data class CalendarDayItem(
     val date: String,
     val score: Int
 )
-
-// Extension function to convert API response to MeasurementResult
-fun ScanResultItem.toMeasurementResult(): MeasurementResult {
-    return MeasurementResult(
-        date = resultDate ?: "",
-        time = resultTime ?: "",
-        name = "",
-        gender = "",
-        age = "",
-        height = "",
-        weight = "",
-        heartRate = heartRate?.toString() ?: "0",
-        breathingRate = breathingRate?.toString() ?: "0",
-        PRQ = prq?.toString() ?: "0",
-        hrv_sdnn = hrvSdnn?.toString() ?: "0",
-        hypertensionRisk = hypertensionRisk?.toString() ?: "0",
-        diabeticRisk = diabeticRisk?.toString() ?: "0",
-        ascvd = ascvdRisk?.toString() ?: "0",
-        highFastingGlucose = highFastingGlucoseRisk?.toString() ?: "0",
-        lowHemoglobinRisk = lowHemoglobinRisk?.toString() ?: "0",
-        heartAge = heartAge?.toString() ?: "0",
-        totalColestrol = highTotalCholesterolRisk?.toString() ?: "0",
-        oxygenSat = oxygenSaturation?.toString() ?: "0",
-        bloodPressureSystolic = bloodPressureSystolic?.toString() ?: "0",
-        bloodPressureDistolic = bloodPressureDiastolic?.toString() ?: "0",
-        hemoglobin = hemoglobin?.toString() ?: "0",
-        hemoglobinA1c = hba1c?.toString() ?: "0",
-        stressLevel = stressLevel?.toString() ?: "0",
-        meanRri = 0,
-        pnsIndex = 0.0,
-        snsIndex = 0.0,
-        RMMSD = 0,
-        sd1 = 0,
-        sd2 = 0,
-        lfhf = 0.0,
-        recoveryRate = recoveryAbility?.toString() ?: "0",
-        stressResp = stressResponse?.toString() ?: "0",
-        wellnessLevel = wellnessLevel ?: "",
-        wellnessIndex = wellnessScore?.toString() ?: "0",
-        heartRateConfi = null,
-        breathingRateConfid = null,
-        prqConfi = null,
-        sdnCofi = null
-    )
-}

@@ -113,9 +113,9 @@ class AuthRepository() {
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun checkAppVersion(requestBody: CheckVersionRequest): Flow<ApiResponseState<CheckVersionResponse>> {
+    suspend fun checkAppVersion(): Flow<ApiResponseState<CheckVersionResponse>> {
         return flow {
-            val response = NetworkModule.api.checkAppVersion(requestBody)
+            val response = NetworkModule.api.checkAppVersion()
             if (response.isSuccessful) {
                 emit(ApiResponseState.success(response.body(), response.code()))
             } else {

@@ -10,6 +10,7 @@ import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import com.vital_self.R
 import com.vital_self.databinding.DialogConfirmBinding
+import com.vital_self.databinding.DialogTwoButtonBinding
 
 object AlertDialogManager {
 
@@ -55,8 +56,60 @@ object AlertDialogManager {
         }
     }
 
+    fun showTwoButtonDialog(
+        activity: Activity,
+        title: String? = null,
+        message: String? = null,
+        cancelButtonText: String = "Cancel",
+        okButtonText: String = "OK",
+        cancelable: Boolean = true,
+        dialogClickListener: TwoButtonDialogClickListener? = null
+    ) {
+        Dialog(activity).apply {
+            setCancelable(cancelable)
+            val dialogBinding: DialogTwoButtonBinding = DataBindingUtil.inflate(
+                LayoutInflater.from(activity),
+                R.layout.dialog_two_button,
+                null,
+                false
+            )
+            setContentView(dialogBinding.root)
+            dialogBinding.tvTitle.text = title
+            dialogBinding.tvMessage.text = message
+            dialogBinding.btnCancel.text = cancelButtonText
+            dialogBinding.btnOk.text = okButtonText
+            dialogBinding.btnCancel.setOnClickListener {
+                dialogClickListener?.onCancelClicked()
+                dismiss()
+            }
+            dialogBinding.btnOk.setOnClickListener {
+                dialogClickListener?.onOkClicked()
+                dismiss()
+            }
+            dialogBinding.imgCloseDialog.setOnClickListener {
+                dialogClickListener?.onCancelClicked()
+                dismiss()
+            }
+
+        }.run {
+            show()
+            window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT)
+            )
+            window?.setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT
+            )
+        }
+    }
+
 }
 
 interface DialogClickListener {
     fun onButton1Clicked()
+}
+
+interface TwoButtonDialogClickListener {
+    fun onCancelClicked()
+    fun onOkClicked()
 }

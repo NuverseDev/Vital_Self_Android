@@ -12,10 +12,31 @@ data class CheckVersionRequest(
 )
 
 data class CheckVersionResponse(
-    @SerializedName("success")
+    @SerializedName("status")
     val success: Boolean,
-    @SerializedName("version_match")
-    val version_match: Boolean,
-    @SerializedName("current_version")
-    val current_version: String
+    @SerializedName("message")
+    val message: Boolean,
+    @SerializedName("data")
+    val data: AppVersion
 )
+
+data class AppVersion(
+    @SerializedName("isMatch")
+    val isMatch: Boolean,
+    @SerializedName("deviceVersion")
+    val deviceVersion: DeviceVersion
+)
+
+data class DeviceVersion(
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("platform")
+    val platform: String,
+    @SerializedName("version")
+    val version: String,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String
+)
+

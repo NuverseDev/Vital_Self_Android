@@ -92,6 +92,21 @@ data class VitalItem(
     val confidenceLevel: String?
 )
 
+// List of vital codes that should display level instead of value
+private val levelBasedVitals = setOf(
+    "hypertension_risk",
+    "stress_response",
+    "recovery_ability",
+    "stress_level",
+    "low_hemoglobin_risk",
+    "high_hemoglobin_a1c_risk",
+    "high_hemoglobona1c_risk",
+    "high_hemoglobon_a1c_risk",
+    "high_blood_pressure_risk",
+    "high_fasting_glucose_risk",
+    "high_total_cholesterol_risk"
+)
+
 // Extension function to convert API vital to Model.VitalsData
 fun VitalItem.toVitalsData(context: Context): Model.VitalsData {
     val vitalIcon = getVitalIcon(code)
@@ -102,16 +117,42 @@ fun VitalItem.toVitalsData(context: Context): Model.VitalsData {
     val numberOfStates = getNumberOfStates(code)
     val range = getRange(code)
 
-    // Format value based on type
-    val formattedValue = when (value) {
-        is Number -> {
-            if (value.toDouble() == value.toInt().toDouble()) {
-                value.toInt().toString()
-            } else {
-                String.format("%.1f", value.toDouble())
+    // Use level for specific vitals, otherwise use value
+    val formattedValue = if (code == "ascvd_risk") {
+        // Special handling for ASCVD risk: <1 Low, 1-30 Normal, >30 High
+        val numValue = (value as? Number)?.toDouble() ?: 0.0
+        when {
+            numValue < 1 -> "Low"
+            numValue <= 30 -> "Normal"
+            else -> "High"
+        }
+    } else if (code in levelBasedVitals) {
+        // Use level instead of value for these vitals
+        // If level is null or empty, convert numeric value to level text
+        if (!level.isNullOrBlank()) {
+            level
+        } else {
+            // Convert numeric value to level text
+            when (val numValue = (value as? Number)?.toInt() ?: 0) {
+                0 -> "Low"
+                1 -> "Normal"
+                2 -> "Medium"
+                3 -> "High"
+                else -> numValue.toString()
             }
         }
-        else -> value?.toString() ?: "0"
+    } else {
+        // Format value based on type
+        when (value) {
+            is Number -> {
+                if (value.toDouble() == value.toInt().toDouble()) {
+                    value.toInt().toString()
+                } else {
+                    String.format("%.1f", value.toDouble())
+                }
+            }
+            else -> value?.toString() ?: "0"
+        }
     }
 
     return Model.VitalsData(
@@ -290,6 +331,7 @@ fun List<VitalItem>.toVitalsDataList(context: Context): ArrayList<Model.VitalsDa
                 range = arrayListOf("systolic range", "100", "130", ""),
                 emojiStatus = getEmojiStatus(item.level)
             ))
+
         } else {
             // Show all vitals from API response
             result.add(item.toVitalsData(context))

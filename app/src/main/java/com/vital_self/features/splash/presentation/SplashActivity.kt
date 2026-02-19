@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,7 @@ import com.vital_self.core.utils.constants.AppConstants
 import com.vital_self.core.utils.helpers.AnimationsHandler
 import com.vital_self.core.data.local.preferences.PreferenceManager
 import com.vital_self.features.auth.presentation.login.ActivityUserLogin
+import com.vital_self.features.onboarding.presentation.HowToUseActivity
 import com.vital_self.features.scan.presentation.scan.VitalScanActivity
 import com.vital_self.features.auth.presentation.viewmodel.AuthViewModel
 
@@ -49,6 +51,15 @@ class SplashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        intent?.data?.let { uri ->
+            if (uri.scheme == "vitalself") {
+                val email = uri.getQueryParameter("email")
+                //
+                Log.d("TAG", "onCreate: recieve email $email ")
+            }
+        }
+
+
         // Check app version on startup
         val checkAppVersion = CheckVersionRequest(
             platform = AppConstants.PLATFORM,
@@ -56,17 +67,16 @@ class SplashActivity : ComponentActivity() {
             app_name = AppConstants.APP_NAME
         )
         authViewModel.checkAppVersion(checkAppVersion, this)
-        PreferenceManager.isFirstTime = PreferenceManager.subjectDetails == null
 
         setContent {
             VitalSelfTheme(darkTheme = true) {
                 val versionCheckState by authViewModel.checkAppVersion.observeAsState()
-
+                Log.d("TAG", "onCreate: version check $versionCheckState ")
                 // Handle version check response
                 LaunchedEffect(versionCheckState) {
                     when (versionCheckState?.status) {
                         Status.SUCCESS -> {
-                            PreferenceManager.appVersionMatch = versionCheckState?.data?.version_match == true
+                            PreferenceManager.appVersionMatch = versionCheckState?.data?.data?.isMatch == true
                         }
                         else -> { /* Handle other states */ }
                     }
@@ -85,6 +95,8 @@ class SplashActivity : ComponentActivity() {
     private fun navigateToNextScreen() {
         if (PreferenceManager.isLoggedIn) {
             VitalScanActivity.startActivity(this)
+        } else if (PreferenceManager.isFreshInstalled) {
+            HowToUseActivity.startActivity(this, fromOnboarding = true)
         } else {
             ActivityUserLogin.startActivity(this)
         }

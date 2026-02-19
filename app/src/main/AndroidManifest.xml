@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <package android:name="com.unipharma.myreset" />
+    </queries>
+
     <application
         android:name=".VitalSelfApplication"
         android:allowBackup="true"
@@ -12,55 +16,67 @@
         android:roundIcon="@mipmap/ic_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup,android:label"
+        android:usesCleartextTraffic="true"
         tools:targetApi="34">
-
+        <activity
+            android:name=".features.billing.PaymentActivity"
+            android:exported="true" />
         <activity
             android:name=".features.splash.presentation.SplashActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize|adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="account"
+                    android:scheme="vitalself" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".features.auth.presentation.login.ActivityUserLogin"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize|adjustPan"/>
-
+            android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".features.auth.presentation.signup.ActivitySignUp"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize|adjustPan"/>
-
+            android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".features.profile.presentation.ActivityProfile"
-            android:exported="false"/>
-
+            android:exported="false" />
         <activity
             android:name=".features.scan.presentation.scan.VitalScanActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".features.packages.presentation.PackagesActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".features.scan.presentation.result.VitalResultActivity2"
-            android:exported="false"/>
-
+            android:exported="false" />
         <activity
             android:name=".features.history.presentation.ScanHistoryActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".features.qrcode.presentation.CaptureActivityPortrait"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".features.qrcode.presentation.QrScanActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".features.onboarding.presentation.ActivityHowToScan"
-            android:exported="true"/>
+            android:exported="true" />
+        <activity
+            android:name=".features.onboarding.presentation.HowToUseActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

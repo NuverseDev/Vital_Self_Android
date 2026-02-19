@@ -43,9 +43,3 @@ data class Model(
         var emojiStatus : Int? = 0,
     ):Parcelable
 }
-
-
-sealed class VitalListItem {
-    data class HeaderItem(val title: String) : VitalListItem()
-    data class VitalItem(val vitalsData: Model.VitalsData) : VitalListItem()
-}

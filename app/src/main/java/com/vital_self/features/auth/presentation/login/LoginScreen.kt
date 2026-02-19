@@ -1,12 +1,5 @@
 package com.vital_self.features.auth.presentation.login
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +11,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -26,19 +18,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vital_self.R
@@ -51,7 +38,6 @@ import com.vital_self.core.ui.theme.SecondaryFrontColor
 import com.vital_self.core.ui.theme.SecondaryThemeTextColor
 import com.vital_self.core.ui.theme.TextBgColor
 import com.vital_self.core.ui.theme.ThemeBtnClickedColor
-import kotlinx.coroutines.delay
 
 data class LoginScreenState(
     val username: String = "",
@@ -71,26 +57,41 @@ sealed class LoginScreenEvent {
 }
 
 @Composable
+@Preview
+fun LoginScreenPreview(){
+    LoginScreenContent(state = LoginScreenState(
+        username = "",
+        password = "",
+        isLoading = false,
+        showError = false,
+    ), onEvent = {
+        when(it){
+            LoginScreenEvent.DismissError -> {
+
+            }
+            else -> {
+
+            }
+        }
+    })
+}
+
+@Composable
 fun LoginScreenContent(
     state: LoginScreenState,
     onEvent: (LoginScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var startAnimations by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        delay(100)
-        startAnimations = true
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(PrimaryBackgroundColor)
             .windowInsetsPadding(WindowInsets.statusBars)
     ) {
-        // Animated Toolbar
-        AnimatedToolbar(startAnimations = startAnimations)
+        // Toolbar
+        Toolbar()
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Column(
             modifier = Modifier
@@ -98,78 +99,60 @@ fun LoginScreenContent(
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Animated Header
-            AnimatedHeader(startAnimations = startAnimations)
+            // Header
+            Header()
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Animated Subtitle
-            AnimatedSubtitle(startAnimations = startAnimations)
+            // Subtitle
+            Subtitle()
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Animated Form Fields
-            AnimatedFormFields(
+            // Form Fields
+            FormFields(
                 state = state,
-                onEvent = onEvent,
-                startAnimations = startAnimations
+                onEvent = onEvent
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Animated Forget Password
-            AnimatedForgetPassword(
-                startAnimations = startAnimations,
+            // Forget Password
+            ForgetPassword(
                 onClick = { onEvent(LoginScreenEvent.ForgetPasswordClicked) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Animated Login Button
-            AnimatedLoginButton(
-                startAnimations = startAnimations,
+            // Login Button
+            LoginButton(
                 isLoading = state.isLoading,
                 onClick = { onEvent(LoginScreenEvent.LoginClicked) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Animated Illustration
-            AnimatedIllustration(startAnimations = startAnimations)
+            // Illustration
+            Illustration()
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Animated Sign Up Row
-            AnimatedSignUpRow(
-                startAnimations = startAnimations,
+            // Sign Up Row
+            SignUpRow(
                 onClick = { onEvent(LoginScreenEvent.SignUpClicked) }
             )
         }
     }
 }
 
-@Composable
-private fun AnimatedToolbar(startAnimations: Boolean) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, easing = FastOutSlowInEasing),
-        label = "toolbarAlpha"
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else (-20).dp,
-        animationSpec = tween(600, easing = FastOutSlowInEasing),
-        label = "toolbarOffset"
-    )
 
+@Composable
+private fun Toolbar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(PrimaryBackgroundColor)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .alpha(alpha)
-            .offset(y = offsetY),
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -181,19 +164,15 @@ private fun AnimatedToolbar(startAnimations: Boolean) {
     }
 }
 
+@Preview
 @Composable
-private fun AnimatedHeader(startAnimations: Boolean) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
-        label = "headerAlpha"
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else 30.dp,
-        animationSpec = tween(700, delayMillis = 100, easing = FastOutSlowInEasing),
-        label = "headerOffset"
-    )
+private fun ToolbarPreview() {
+    Toolbar()
+}
 
+
+@Composable
+private fun Header() {
     Text(
         text = "Welcome Back",
         color = SecondaryFrontColor,
@@ -201,26 +180,12 @@ private fun AnimatedHeader(startAnimations: Boolean) {
         fontFamily = InterFamily,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .alpha(alpha)
-            .offset(y = offsetY)
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
-private fun AnimatedSubtitle(startAnimations: Boolean) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(700, delayMillis = 200, easing = FastOutSlowInEasing),
-        label = "subtitleAlpha"
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else 20.dp,
-        animationSpec = tween(700, delayMillis = 200, easing = FastOutSlowInEasing),
-        label = "subtitleOffset"
-    )
-
+private fun Subtitle() {
     Text(
         text = "Sign in to continue your health journey",
         color = SecondaryThemeTextColor,
@@ -228,36 +193,17 @@ private fun AnimatedSubtitle(startAnimations: Boolean) {
         fontFamily = InterFamily,
         fontWeight = FontWeight.Normal,
         textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .alpha(alpha)
-            .offset(y = offsetY)
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
-private fun AnimatedFormFields(
+private fun FormFields(
     state: LoginScreenState,
-    onEvent: (LoginScreenEvent) -> Unit,
-    startAnimations: Boolean
+    onEvent: (LoginScreenEvent) -> Unit
 ) {
     // Username Field
-    val usernameAlpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 300, easing = FastOutSlowInEasing),
-        label = "usernameAlpha"
-    )
-    val usernameOffsetX by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else (-30).dp,
-        animationSpec = tween(600, delayMillis = 300, easing = FastOutSlowInEasing),
-        label = "usernameOffset"
-    )
-
-    Column(
-        modifier = Modifier
-            .alpha(usernameAlpha)
-            .offset(x = usernameOffsetX)
-    ) {
+    Column {
         Text(
             text = "Username",
             color = SecondaryFrontColor,
@@ -279,22 +225,7 @@ private fun AnimatedFormFields(
     Spacer(modifier = Modifier.height(20.dp))
 
     // Password Field
-    val passwordAlpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 400, easing = FastOutSlowInEasing),
-        label = "passwordAlpha"
-    )
-    val passwordOffsetX by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else (-30).dp,
-        animationSpec = tween(600, delayMillis = 400, easing = FastOutSlowInEasing),
-        label = "passwordOffset"
-    )
-
-    Column(
-        modifier = Modifier
-            .alpha(passwordAlpha)
-            .offset(x = passwordOffsetX)
-    ) {
+    Column {
         Text(
             text = "Password",
             color = SecondaryFrontColor,
@@ -324,20 +255,11 @@ private fun AnimatedFormFields(
 }
 
 @Composable
-private fun AnimatedForgetPassword(
-    startAnimations: Boolean,
+private fun ForgetPassword(
     onClick: () -> Unit
 ) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 500, easing = FastOutSlowInEasing),
-        label = "forgetAlpha"
-    )
-
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .alpha(alpha),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ) {
         Text(
@@ -352,43 +274,19 @@ private fun AnimatedForgetPassword(
 }
 
 @Composable
-private fun AnimatedLoginButton(
-    startAnimations: Boolean,
+private fun LoginButton(
     isLoading: Boolean,
     onClick: () -> Unit
 ) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 600, easing = FastOutSlowInEasing),
-        label = "buttonAlpha"
+    PrimaryButton(
+        text = "Sign In",
+        onClick = onClick,
+        enabled = !isLoading
     )
-    val offsetY by animateDpAsState(
-        targetValue = if (startAnimations) 0.dp else 20.dp,
-        animationSpec = tween(600, delayMillis = 600, easing = FastOutSlowInEasing),
-        label = "buttonOffset"
-    )
-
-    Column(
-        modifier = Modifier
-            .alpha(alpha)
-            .offset(y = offsetY)
-    ) {
-        PrimaryButton(
-            text = "Sign In",
-            onClick = onClick,
-            enabled = !isLoading
-        )
-    }
 }
 
 @Composable
-private fun AnimatedIllustration(startAnimations: Boolean) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(800, delayMillis = 700, easing = FastOutSlowInEasing),
-        label = "illustrationAlpha"
-    )
-
+private fun Illustration() {
     Image(
         painter = painterResource(id = R.drawable.ic_illustration_login),
         contentDescription = "Login Illustration",
@@ -397,26 +295,17 @@ private fun AnimatedIllustration(startAnimations: Boolean) {
             .fillMaxWidth()
             .height(200.dp)
             .padding(vertical = 12.dp)
-            .alpha(alpha)
     )
 }
 
 @Composable
-private fun AnimatedSignUpRow(
-    startAnimations: Boolean,
+private fun SignUpRow(
     onClick: () -> Unit
 ) {
-    val alpha by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600, delayMillis = 800, easing = FastOutSlowInEasing),
-        label = "signupAlpha"
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp)
-            .alpha(alpha),
+            .padding(bottom = 24.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(

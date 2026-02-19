@@ -4,6 +4,7 @@ package com.vital_self.core.data.remote.api
 import com.vital_self.features.auth.data.model.AuthResponse
 import com.vital_self.core.data.remote.model.CheckVersionRequest
 import com.vital_self.core.data.remote.model.CheckVersionResponse
+import com.vital_self.features.packages.data.model.AvailableCreditsResponse
 import com.vital_self.features.packages.data.model.CreditPackagesResponse
 import com.vital_self.features.packages.data.model.PurchaseCreditRequest
 import com.vital_self.features.packages.data.model.PurchaseCreditResponse
@@ -23,6 +24,7 @@ import com.vital_self.features.history.data.model.ScanHistoryByIdResponse
 import com.vital_self.features.history.data.model.CalendarResponse
 import com.vital_self.features.history.data.model.SaveScanHistoryRequest
 import com.vital_self.features.history.data.model.SaveScanHistoryResponse
+import com.vital_self.features.scan.data.model.PdfDownloadResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -62,8 +64,8 @@ interface ApiService {
     @GET("/api/demo/user")
     suspend fun getUserById(@Query("userId") userId: Int): Response<GetUserResponse?>
 
-    @POST("/api/demo/check-version")
-    suspend fun checkAppVersion(@Body requestBody: CheckVersionRequest): Response<CheckVersionResponse>
+    @GET("/api/device-version")
+    suspend fun checkAppVersion(): Response<CheckVersionResponse>
 
     @GET("/api/user/scan-history-by-date")
     suspend fun getScanHistoryByDate(@Query("date") date: String): Response<ScanHistoryByDateResponse>
@@ -76,5 +78,11 @@ interface ApiService {
 
     @POST("/api/user/scan-history")
     suspend fun saveScanHistory(@Body requestBody: SaveScanHistoryRequest): Response<SaveScanHistoryResponse>
+
+    @GET("/api/user/available-credits")
+    suspend fun getAvailableCredits(): Response<AvailableCreditsResponse>
+
+    @GET("/api/scan-history/pdf/{id}")
+    suspend fun getScanHistoryPdf(@retrofit2.http.Path("id") id: Int): Response<PdfDownloadResponse>
 
 }

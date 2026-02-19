@@ -73,7 +73,7 @@ data class SaveScanHistoryRequest(
     @SerializedName("heartAge")
     val heartAge: Int?,
     @SerializedName("ascvdRiskLevel")
-    val ascvdRiskLevel: Int?,
+    val ascvdRiskLevel: Double?,
     @SerializedName("cardiacWorkload")
     val cardiacWorkload: Double?,
     @SerializedName("pulsePressure")

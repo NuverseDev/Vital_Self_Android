@@ -2,6 +2,7 @@ package com.vital_self.features.auth.presentation.signup
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -130,10 +131,12 @@ class ActivitySignUp : ComponentActivity() {
                                 onBackPressedDispatcher.onBackPressed()
                             }
                             SignUpScreenEvent.PrivacyPolicyClicked -> {
-                                // TODO: Open privacy policy
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://vitalself.life/policies/privacy-policy"))
+                                startActivity(intent)
                             }
                             SignUpScreenEvent.TermsClicked -> {
-                                // TODO: Open terms and conditions
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://vitalself.life/policies/terms-of-service"))
+                                startActivity(intent)
                             }
                         }
                     }
@@ -164,7 +167,7 @@ class ActivitySignUp : ComponentActivity() {
                 PreferenceManager.authUser = data.data.user
                 PreferenceManager.authToken = data.data.accessToken
                 PreferenceManager.isLoggedIn = true
-                PreferenceManager.isFirstTime = true
+                PreferenceManager.isFreshInstalled = true
                 VitalScanActivity.startActivity(this)
             } else {
                 showErrorDialog(data?.message ?: "Signup failed")

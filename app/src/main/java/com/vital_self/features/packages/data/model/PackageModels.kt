@@ -75,3 +75,16 @@ data class PurchaseCreditResponse(
 data class PurchaseCreditData(
     val userCredit: UserCredit
 )
+
+// Available Credits Response
+data class AvailableCreditsResponse(
+    val message: String,
+    val status: Boolean,
+    val data: AvailableCreditsData?
+)
+
+data class AvailableCreditsData(
+    val totalAvailableCredits: Int,
+    val freeAvailableCredits: Int,
+    val sumofAvailableCredits: Int
+)

@@ -2,6 +2,7 @@ package com.vital_self.features.scan.data.repository
 
 import com.vital_self.core.data.remote.model.CheckVersionRequest
 import com.vital_self.core.data.remote.model.CheckVersionResponse
+import com.vital_self.features.packages.data.model.AvailableCreditsResponse
 import com.vital_self.features.profile.data.model.GetUserResponse
 import com.vital_self.features.profile.data.model.UpdateScanResponse
 import com.vital_self.features.profile.data.model.UserLoginRequest
@@ -46,9 +47,9 @@ class ScanRepository() {
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun checkAppVersion(requestBody: CheckVersionRequest): Flow<ApiResponseState<CheckVersionResponse>> {     // Flow<ApiResponseState<VerifyOTPResponse>>
+    suspend fun checkAppVersion(): Flow<ApiResponseState<CheckVersionResponse>> {     // Flow<ApiResponseState<VerifyOTPResponse>>
         return flow {
-            val response = NetworkModule.api.checkAppVersion(requestBody)
+            val response = NetworkModule.api.checkAppVersion()
             if (response.isSuccessful) {
                 emit(ApiResponseState.success(response.body(), response.code()))
             } else {
@@ -64,6 +65,21 @@ class ScanRepository() {
     suspend fun updateScan(request: UserRequest): Flow<ApiResponseState<UpdateScanResponse>> {
         return flow {
             val response = NetworkModule.api.updateScan(request)
+            if (response.isSuccessful) {
+                emit(ApiResponseState.success(response.body(), response.code()))
+            } else {
+                emit(
+                    ApiResponseState.error(
+                        NetworkUtils.getErrorResponse(response.errorBody()).message, response.code()
+                    )
+                )
+            }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun getAvailableCredits(): Flow<ApiResponseState<AvailableCreditsResponse>> {
+        return flow {
+            val response = NetworkModule.api.getAvailableCredits()
             if (response.isSuccessful) {
                 emit(ApiResponseState.success(response.body(), response.code()))
             } else {

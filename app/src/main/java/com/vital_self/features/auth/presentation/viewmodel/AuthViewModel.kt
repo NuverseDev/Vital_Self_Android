@@ -157,7 +157,7 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() {
                 Log.d("TAG", "getUserById: 3")
                 _checkAppVersion.value = ApiResponseState.loading()
                 viewModelScope.launch {
-                    repository.checkAppVersion(requestBody = requestBody).catch {
+                    repository.checkAppVersion().catch {
                         Log.d("TAG", "getUserById: 4 ${it.message}")
                         _checkAppVersion.value =
                             ApiResponseState.error(it.message, 400)

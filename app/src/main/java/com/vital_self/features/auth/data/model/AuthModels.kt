@@ -29,7 +29,7 @@ data class AuthData(
     val accessToken: String,
     val refreshToken: String,
     val user: AuthUser,
-    val licenseKeys: List<LicenseKey>
+    val key: String
 )
 
 data class AuthUser(
@@ -46,7 +46,8 @@ data class AuthUser(
     @SerializedName("freescans")
     val freeScans: Int? = null,
     val createdAt: String? = null,
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    val doctor : Boolean
 )
 
 data class LicenseKey(

@@ -63,17 +63,6 @@ class ActivityProfile : ComponentActivity() {
             }
         }
 
-        fun startActivityFresh(activity: Activity, title: String) {
-            Intent(activity, ActivityProfile::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                putExtra(TITLE, title)
-            }.run {
-                activity.startActivity(this)
-                AnimationsHandler.playActivityAnimation(
-                    activity, AnimationsHandler.Animations.RightToLeft
-                )
-            }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,20 +73,23 @@ class ActivityProfile : ComponentActivity() {
             VitalSelfTheme(darkTheme = false) {
                 // Load existing data
                 val existingSubject = PreferenceManager.subjectDetails
+
                 val existingAuthUser = PreferenceManager.authUser
 
-                // Initialize state with existing data
+                Log.d("TAG", "onCreate: auth user $existingAuthUser")
+
                 var screenState by remember {
                     mutableStateOf(
                         ProfileScreenState(
                             name = existingSubject?.name ?: existingAuthUser?.name ?: "",
                             age = existingSubject?.age?.toInt()?.toString() ?: existingAuthUser?.age?.toString() ?: "",
-                            height = formatHeightForDisplay(existingSubject?.height, existingSubject?.heightUnit ?: "cm"),
-                            heightUnit = existingSubject?.heightUnit ?: "cm",
-                            weight = formatWeightForDisplay(existingSubject?.weight, existingSubject?.weightUnit ?: "kg"),
-                            weightUnit = existingSubject?.weightUnit ?: "kg",
+                            height = formatHeightForDisplay(existingSubject?.height ?: existingAuthUser?.height ?: 0.0, existingSubject?.heightUnit ?: existingAuthUser?.heightUnit ?: "cm"),
+                            heightUnit = existingSubject?.heightUnit ?: existingAuthUser?.heightUnit ?: "cm",
+                            weight = formatWeightForDisplay(existingSubject?.weight ?: existingAuthUser?.weight ?: 0.0, existingSubject?.weightUnit ?: existingAuthUser?.weightUnit ?: "kg"),
+                            weightUnit = existingSubject?.weightUnit ?: existingAuthUser?.weightUnit?: "kg",
                             gender = existingSubject?.sex?.let { sexToString(it) } ?: existingAuthUser?.gender ?: "",
-                            isSmoker = existingSubject?.isSmoker == SmokingStatus.SMOKER || existingAuthUser?.smokerStatus == "smoker"
+                            isSmoker = existingSubject?.isSmoker == SmokingStatus.SMOKER || existingAuthUser?.smokerStatus == "smoker",
+                            isDoctor = existingAuthUser?.doctor == true
                         )
                     )
                 }
@@ -112,6 +104,7 @@ class ActivityProfile : ComponentActivity() {
                         }
                         Status.SUCCESS -> {
                             screenState = screenState.copy(isLoading = false)
+                            PreferenceManager.isProfileUpdated = true
                             handleProfileUpdateSuccess(profileUpdateData?.data, screenState)
                         }
                         Status.ERROR -> {
@@ -364,7 +357,9 @@ class ActivityProfile : ComponentActivity() {
             buttonMessage = getString(R.string.ok),
             cancelable = true,
             dialogClickListener = object : DialogClickListener {
-                override fun onButton1Clicked() {}
+                override fun onButton1Clicked() {
+
+                }
             }
         )
     }

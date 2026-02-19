@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -38,6 +39,14 @@ import com.vital_self.core.ui.theme.SecondaryTextColor
 import com.vital_self.core.ui.theme.SecondaryThemeTextColor
 import com.vital_self.core.ui.theme.ThemeColor
 import com.vital_self.core.ui.theme.White
+
+@Preview
+@Composable
+private fun PreviewForgetPassword(){
+    ForgetPasswordDialog({}){
+
+    }
+}
 
 @Composable
 fun ForgetPasswordDialog(
@@ -78,7 +87,7 @@ fun ForgetPasswordDialog(
                     color = SecondaryTextColor,
                     fontSize = 16.sp,
                     fontFamily = InterFamily,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))

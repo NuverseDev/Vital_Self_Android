@@ -4,7 +4,8 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawerLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+       >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main"
@@ -77,21 +78,24 @@
         <!-- Navigation Drawer -->
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationView"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            app:headerLayout="@layout/nav_header">
+            android:background="@color/primary_background_color"
+            android:fitsSystemWindows="true">
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:id="@+id/nav_custom_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp" >
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Header -->
                     <include layout="@layout/nav_header" />
 
                     <!-- Custom Menu Layout -->

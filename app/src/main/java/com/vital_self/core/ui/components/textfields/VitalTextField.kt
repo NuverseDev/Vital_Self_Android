@@ -23,10 +23,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vital_self.R
 import com.vital_self.core.ui.theme.*
+
+@Composable
+@Preview(showBackground = true)
+fun VitalTextFieldPreview(){
+    VitalTextField("testing", onValueChange = {})
+}
 
 @Composable
 fun VitalTextField(
@@ -43,6 +50,7 @@ fun VitalTextField(
     enabled: Boolean = true,
     singleLine: Boolean = true
 ) {
+
     var passwordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(

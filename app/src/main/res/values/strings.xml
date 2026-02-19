@@ -273,5 +273,6 @@ PPG has been used by healthcare professionals to track the heartbeat since 1972,
     <string name="point_five">
         Avoid uneven light, multiple light source or no light source directed toward the camera.
     </string>
+    <string name="version">Version %1$s</string>
 
 </resources>

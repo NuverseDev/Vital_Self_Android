@@ -19,7 +19,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
 import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
@@ -43,7 +42,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.biosensesignal.sdk.api.HealthMonitorException
 import com.biosensesignal.sdk.api.SessionEnabledVitalSigns
 import com.biosensesignal.sdk.api.alerts.AlertCodes
@@ -57,69 +55,52 @@ import com.biosensesignal.sdk.api.session.SessionState
 import com.biosensesignal.sdk.api.session.demographics.Sex
 import com.biosensesignal.sdk.api.session.user_info.UserInformation
 import com.biosensesignal.sdk.api.vital_signs.VitalSign
-import com.biosensesignal.sdk.api.vital_signs.VitalSignTypes
 import com.biosensesignal.sdk.api.vital_signs.VitalSignsResults
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignASCVDRisk
 import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignBloodPressure
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignHeartAge
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignHighFastingGlucoseRisk
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignHighTotalCholesterolRisk
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignLFHF
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignLowHemoglobinRisk
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignMeanRRI
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignPNSIndex
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignPRQ
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignPulseRate
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignRMSSD
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignRespirationRate
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignSD1
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignSD2
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignSDNN
-import com.biosensesignal.sdk.api.vital_signs.vitals.VitalSignSNSIndex
 import com.biosensesignal.sdk.session.FaceSessionBuilder
 import com.vital_self.R
 import com.vital_self.core.base.BaseActivity
 import com.vital_self.databinding.ActivityVitalScanBinding
 import com.vital_self.features.scan.presentation.dialogs.DialogHowToScan
 import com.vital_self.core.domain.model.Model
-import com.vital_self.features.profile.data.model.UserRequest
 import com.vital_self.core.data.remote.model.NetworkErrorCode
 import com.vital_self.core.utils.helpers.NetworkUtils
-import com.vital_self.core.data.remote.model.Status
 import com.vital_self.features.scan.data.repository.ScanRepository
 import com.vital_self.features.scan.presentation.viewmodel.ScanViewModelFactory
 import com.vital_self.core.utils.helpers.AlertDialogManager
 import com.vital_self.core.utils.helpers.AnimationsHandler
 import com.vital_self.core.utils.helpers.BinahErrorMessage
 import com.vital_self.core.utils.helpers.DialogClickListener
+import com.vital_self.core.utils.helpers.TwoButtonDialogClickListener
 import com.vital_self.core.data.local.preferences.PreferenceManager
-import com.vital_self.features.scan.presentation.scan.ScanResultGenerator
 import com.vital_self.features.history.presentation.viewmodel.HistoryViewModel
 import com.vital_self.features.scan.presentation.viewmodel.ScanViewModel
 import com.google.android.material.navigation.NavigationView
 import com.vital_self.BuildConfig
-import com.vital_self.features.auth.data.repository.AuthRepository
-import com.vital_self.features.auth.presentation.viewmodel.AuthViewModelFactory
-import com.vital_self.core.utils.helpers.DateFormatter
 import com.vital_self.features.auth.presentation.login.ActivityUserLogin
 import com.vital_self.features.history.presentation.ScanHistoryActivity
 import com.vital_self.features.profile.presentation.ActivityProfile
 import com.vital_self.features.qrcode.presentation.QrScanActivity
 import com.vital_self.features.packages.presentation.PackagesActivity
 import com.vital_self.features.onboarding.presentation.ActivityHowToScan
+import com.vital_self.features.onboarding.presentation.HowToUseActivity
 import com.vital_self.features.scan.presentation.result.VitalResultActivity2
-import com.vital_self.features.auth.presentation.viewmodel.AuthViewModel
 import com.vital_self.core.utils.constants.AppConstants
-import com.vital_self.features.scan.data.model.ScanHistory
-import com.vital_self.core.data.remote.model.ApiResponseState
-import com.vital_self.features.history.data.model.SaveScanHistoryRequest
-import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import kotlin.String
-import kotlin.getValue
+import com.vital_self.features.scan.presentation.viewmodel.ScanResultState
+import com.vital_self.features.scan.presentation.viewmodel.CreditCheckState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.biosensesignal.sdk.api.session.user_info.SmokingStatus
+import android.view.ViewGroup
+import com.vital_self.core.ui.theme.VitalSelfTheme
+import com.vital_self.features.scan.presentation.components.PatientInfoBottomSheet
+import com.vital_self.features.scan.presentation.state.PatientFieldError
+import com.vital_self.features.scan.presentation.state.PatientInfoEvent
+import com.vital_self.features.scan.presentation.state.PatientInfoState
+import com.vital_self.features.scan.presentation.state.PatientValidation
+import androidx.core.net.toUri
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class VitalScanActivity : BaseActivity(),
@@ -130,11 +111,8 @@ class VitalScanActivity : BaseActivity(),
     private val scanDuration = 60L
     private var mWarningDialogTimeoutHandler: Handler? = null
     private var session: Session? = null
-
     private var userImage: Bitmap? = null
-
     lateinit var historyViewmodel: HistoryViewModel
-
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var navCustomLayout: LinearLayout
@@ -153,6 +131,12 @@ class VitalScanActivity : BaseActivity(),
     }
 
     private var subject : Model.SubjectDetails? = null
+
+    // Doctor mode state
+    private var showPatientBottomSheet = mutableStateOf(false)
+    private var patientInfoState = mutableStateOf(PatientInfoState())
+    private var tempPatientSubject: Model.SubjectDetails? = null
+    private var composeView: ComposeView? = null
 
     private val faceDetectionNormal: Bitmap? by lazy {
         ContextCompat.getDrawable(this, R.drawable.ic_correct_frame)?.toBitmap()
@@ -177,28 +161,18 @@ class VitalScanActivity : BaseActivity(),
         ScanViewModelFactory(ScanRepository())
     }
 
-    private val authViewmodel: AuthViewModel by viewModels {
-        AuthViewModelFactory(AuthRepository())
-    }
-
-    // Store pending data for navigation after API response
-    private var pendingScanDate: String = ""
-    private var pendingScanTime: String = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_vital_scan)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        subject = PreferenceManager.subjectDetails
-        Log.d(TAG, "onCreate: token scan ${PreferenceManager.authToken}")
-        Log.d(TAG, "onCreate: version ${BuildConfig.VERSION} sdk version ${com.biosensesignal.sdk.BuildConfig.VERSION_NAME}")
-        Log.d(TAG, "onCreate: scan activity $subject is first ${PreferenceManager.isFirstTime} app ${PreferenceManager.appVersionMatch}")
-        if (subject == null && PreferenceManager.isFirstTime == true && !PreferenceManager.appVersionMatch) {
+
+        if (!PreferenceManager.isProfileUpdated) {
             AlertDialogManager.showConfirmationDialog(this,
                 title = "Update Profile",
                 message = "Please update profile for full report",
@@ -207,14 +181,15 @@ class VitalScanActivity : BaseActivity(),
                 dialogClickListener = object : DialogClickListener {
                     override fun onButton1Clicked() {
                         ActivityProfile.startActivity(this@VitalScanActivity,AppConstants.PROFILE)
-                        PreferenceManager.isFirstTime = false
                     }
-                })
+            })
         }
 
         historyViewmodel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+
         initUI()
         setListener()
+        setupComposeBottomSheet()
         observable()
         setUpToolbar(binding.tool)
         setSupportActionBar(binding.tool.toolbar)
@@ -226,35 +201,39 @@ class VitalScanActivity : BaseActivity(),
         navigationView = binding.navigationView
         navCustomLayout = binding.navCustomLayout
 
-        val menuProfile = navigationView.findViewById<TextView>(R.id.menu_profile)
-        val menuHistory = navigationView.findViewById<TextView>(R.id.menu_history)
-        val menuHelp = navigationView.findViewById<TextView>(R.id.menu_help)
-        val menuScanQR = navigationView.findViewById<TextView>(R.id.menu_scan_qr)
-        val menuLogout = navigationView.findViewById<TextView>(R.id.menu_logout)
-        val packages = navigationView.findViewById<TextView>(R.id.menu_packages)
+        val menuProfile = navigationView.findViewById<LinearLayout>(R.id.menu_profile)
+        val menuHistory = navigationView.findViewById<LinearLayout>(R.id.menu_history)
+        val menuHelp = navigationView.findViewById<LinearLayout>(R.id.menu_help)
+        val menuScanQR = navigationView.findViewById<LinearLayout>(R.id.menu_scan_qr)
+        val menuLogout = navigationView.findViewById<LinearLayout>(R.id.menu_logout)
+        val packages = navigationView.findViewById<LinearLayout>(R.id.menu_packages)
         val closeDrawer = navigationView.findViewById<ImageView>(R.id.close_icon)
+        val menuMyResetApp = navigationView.findViewById<LinearLayout>(R.id.menu_my_reset_app)
+        val appVersion = navigationView.findViewById<TextView>(R.id.app_version)
 
-        val menuProfiledv = navigationView.findViewById<View>(R.id.dv_profile)
-        val menuHistorydv = navigationView.findViewById<View>(R.id.dv_history)
-        val menuScandv = navigationView.findViewById<View>(R.id.dv_best_practices)
+        appVersion.text = getString(R.string.version, BuildConfig.VERSION)
 
-        Log.d(TAG, "onCreate: version name ${com.biosensesignal.sdk.BuildConfig.VERSION_NAME} version code ${com.biosensesignal.sdk.BuildConfig.VERSION_CODE}")
-//        if (PreferenceManager.appVersionMatch){
-//            menuHistory.visibility = View.GONE
-//            menuScanQR.visibility = View.GONE
-//            menuProfile.visibility = View.GONE
-//            menuProfiledv.visibility = View.GONE
-//            menuHistorydv.visibility = View.GONE
-//            menuScandv.visibility = View.GONE
-//        }
+        if (PreferenceManager.appVersionMatch){
+            menuHistory.visibility = View.GONE
+            menuScanQR.visibility = View.GONE
+            packages.visibility = View.GONE
+            menuMyResetApp.visibility = View.GONE
+        }else{
+            menuHistory.visibility = View.VISIBLE
+            menuScanQR.visibility = View.VISIBLE
+            packages.visibility = View.VISIBLE
+            menuMyResetApp.visibility = View.VISIBLE
+        }
 
         menuProfile.setOnClickListener {
             ActivityProfile.startActivity(this,AppConstants.PROFILE)
             drawerLayout.closeDrawers()
         }
+
         closeDrawer.setOnClickListener {
             drawerLayout.closeDrawers()
         }
+
         menuHistory.setOnClickListener {
             ScanHistoryActivity.startActivity(this,AppConstants.HISTORY)
             drawerLayout.closeDrawers()
@@ -267,6 +246,44 @@ class VitalScanActivity : BaseActivity(),
 
         menuHelp.setOnClickListener {
             ActivityHowToScan.startActivity(this,AppConstants.BEST_PRACTICES)
+            drawerLayout.closeDrawers()
+        }
+
+        val menuHowToUse = navigationView.findViewById<LinearLayout>(R.id.menu_how_to_use)
+        menuHowToUse.setOnClickListener {
+            HowToUseActivity.startActivity(this)
+            drawerLayout.closeDrawers()
+        }
+
+        // About us menu - opens URL
+        val menuAboutUs = navigationView.findViewById<LinearLayout>(R.id.menu_about_us)
+        menuAboutUs.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW,
+                "https://vitalself.life/pages/about-vitalself".toUri())
+            startActivity(intent)
+            drawerLayout.closeDrawers()
+        }
+
+        // Privacy policy menu - opens URL
+        val menuPrivacyPolicy = navigationView.findViewById<LinearLayout>(R.id.menu_privacy_policy)
+        menuPrivacyPolicy.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW,
+                "https://vitalself.life/policies/privacy-policy".toUri())
+            startActivity(intent)
+            drawerLayout.closeDrawers()
+        }
+
+        // Terms & condition menu - opens URL
+        val menuTerms = navigationView.findViewById<LinearLayout>(R.id.menu_terms)
+        menuTerms.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW,
+                "https://vitalself.life/policies/terms-of-service".toUri())
+            startActivity(intent)
+            drawerLayout.closeDrawers()
+        }
+
+        menuMyResetApp.setOnClickListener {
+            openMyResetApp()
             drawerLayout.closeDrawers()
         }
 
@@ -285,15 +302,17 @@ class VitalScanActivity : BaseActivity(),
                 dialogClickListener = object : DialogClickListener {
                     override fun onButton1Clicked() {
                         PreferenceManager.subjectDetails = null
+                        PreferenceManager.authToken = null
+                        PreferenceManager.authUser = null
+                        PreferenceManager.Key = null
                         PreferenceManager.isLoggedIn = false
                         PreferenceManager.user = null
                         drawerLayout.closeDrawers()
                         ActivityUserLogin.startActivity(this@VitalScanActivity)
                         finish()
                     }
-
-                })
-
+                }
+            )
         }
     }
 
@@ -306,139 +325,98 @@ class VitalScanActivity : BaseActivity(),
     }
 
     private fun observable() {
-        lifecycleScope.launch {
-            authViewmodel.checkAppVersion.observe(this@VitalScanActivity, Observer {
-                when (it?.status) {
-                    Status.LOADING -> {
-//                            showHideProgress(it.data == null)
-                    }
-
-                    Status.SUCCESS -> {
-                        showHideProgress(false)
-                        try {
-                            if (it.data?.version_match == true){
-                                Log.d(TAG, "observable: under review")
-                                PreferenceManager.appVersionMatch = true
-                            }else{
-                                Log.d(TAG, "observable: normal user")
-                                PreferenceManager.appVersionMatch = false
-                            }
-                        }catch (e: Exception){
-
-                        }
-                    }
-
-                    Status.ERROR -> {
-
-                    }
-
-                    else -> {
+        viewModel.scanResult.observe(this@VitalScanActivity, Observer { state ->
+            when (state) {
+                is ScanResultState.Loading -> {
+                    showHideProgress(true)
+                }
+                is ScanResultState.Success -> {
+                    showHideProgress(false)
+                    viewModel.resetScanResultState()
+                    if (state.scanId != -1) {
+                        // Navigate to VitalResultActivity2 with scan ID (isFromHistory = false means from scan)
+                        VitalResultActivity2.startActivityWithScanId(this@VitalScanActivity, state.scanId, isFromHistory = false)
+                        finish()
+                    } else {
+                        Toast.makeText(this@VitalScanActivity, "Failed to get scan ID", Toast.LENGTH_SHORT).show()
                     }
                 }
-            })
-        }
-
-        lifecycleScope.launch {
-            viewModel.updateData.observe(this@VitalScanActivity, Observer {
-                Log.d(TAG, "observable: observer called")
-                when (it?.status) {
-                    Status.LOADING -> {
-//                            showHideProgress(it.data == null)
-                    }
-
-                    Status.SUCCESS -> {
-                        Log.d(TAG, "observable: user data ${PreferenceManager.user?.availableScan}")
-                        Log.d(TAG, "observable: scan ${it.data?.user?.availableScan} status ${it.data?.user?.status}")
-                        showHideProgress(false)
-                        try {
-                            Log.d(TAG, "observable: scan ${it.data?.user?.availableScan} status ${it.data?.user?.status}")
-                            if (it.data?.user?.availableScan!! > 0 && it.data.user.status == true){
-                                PreferenceManager.user = it.data.user
-                                Log.d(TAG, "observable: user data ${PreferenceManager.user?.licenseKey}")
-                            }else{
-                                AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
-                                    title = getString(R.string.license_expired),
-                                    message = getString(R.string.license_expired_message),
-                                    buttonMessage = getString(R.string.ok),
-                                    cancelable = true,
-                                    isDissable = true,
-                                    dialogClickListener = object : DialogClickListener {
-                                        override fun onButton1Clicked() {
-                                            PreferenceManager.subjectDetails = null
-                                            PreferenceManager.isLoggedIn = false
-                                            PreferenceManager.user = null
-                                            drawerLayout.closeDrawers()
-                                            ActivityUserLogin.startActivity(this@VitalScanActivity)
-                                            finish()
-                                        }
-                                    })
+                is ScanResultState.Error -> {
+                    showHideProgress(false)
+                    viewModel.resetScanResultState()
+                    AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
+                        title = getString(R.string.error),
+                        message = state.message ?: "Failed to save scan history",
+                        buttonMessage = getString(string.ok),
+                        cancelable = true,
+                        dialogClickListener = object : DialogClickListener {
+                            override fun onButton1Clicked() {
                             }
-                        }catch (e: Exception){
-                            Log.d("TAG", "getUserById:catch ")
-                            Toast.makeText(this@VitalScanActivity,e.message, Toast.LENGTH_LONG).show()
-                        }
-                    }
-
-                    Status.ERROR -> {
-                        Log.d("TAG", "getUserById:error ")
-                        showHideProgress(false)
-                        AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
-                            title = getString(R.string.error),
-                            message = NetworkErrorCode.getNetworkError(it.code,null),
-                            buttonMessage = getString(string.ok),
-                            cancelable = true,
-                            dialogClickListener = object : DialogClickListener {
-                                override fun onButton1Clicked() {
-
-                                }
-                            })
-                    }
-
-                    else -> {
-                    }
+                        })
                 }
-            })
-        }
-
-        // Observer for save scan history API response
-        lifecycleScope.launch {
-            historyViewmodel.saveScanHistory.observe(this@VitalScanActivity, Observer { response ->
-                when (response?.status) {
-                    Status.LOADING -> {
-                        showHideProgress(true)
-                    }
-                    Status.SUCCESS -> {
-                        showHideProgress(false)
-                        try {
-                            val scanId = response.data?.data?.scanHistory?.id
-                            if (scanId != null && scanId != -1) {
-                                // Navigate to VitalResultActivity2 with scan ID
-                                VitalResultActivity2.startActivityWithScanId(this@VitalScanActivity, scanId)
-                                finish()
-                            } else {
-                                Toast.makeText(this@VitalScanActivity, "Failed to get scan ID", Toast.LENGTH_SHORT).show()
+                is ScanResultState.ValidationError -> {
+                    showHideProgress(false)
+                    viewModel.resetScanResultState()
+                    AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
+                        title = getString(R.string.data_not_collected),
+                        message = getString(R.string.required_vitals_not_collected),
+                        buttonMessage = getString(string.ok),
+                        cancelable = true,
+                        dialogClickListener = object : DialogClickListener {
+                            override fun onButton1Clicked() {
                             }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error parsing save scan response: ${e.message}")
-                            Toast.makeText(this@VitalScanActivity, "Error saving scan: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    Status.ERROR -> {
-                        showHideProgress(false)
-                        AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
-                            title = getString(R.string.error),
-                            message = response.message ?: "Failed to save scan history",
-                            buttonMessage = getString(string.ok),
-                            cancelable = true,
-                            dialogClickListener = object : DialogClickListener {
-                                override fun onButton1Clicked() {
-                                }
-                            })
-                    }
-                    else -> {}
+                        })
                 }
-            })
-        }
+                is ScanResultState.Idle -> {
+                    // Do nothing
+                }
+            }
+        })
+
+        viewModel.creditCheckState.observe(this@VitalScanActivity, Observer { state ->
+            when (state) {
+                is CreditCheckState.Loading -> {
+                    // Optionally show loading indicator
+                }
+                is CreditCheckState.Success -> {
+                    // Credits updated in SharedPreferences
+                    viewModel.resetCreditCheckState()
+                }
+                is CreditCheckState.NoCredits -> {
+                    // Credits updated in SharedPreferences (0 credits)
+                    // Dialog will be shown when user clicks "Measure Now"
+                    viewModel.resetCreditCheckState()
+                }
+                is CreditCheckState.Error -> {
+                    viewModel.resetCreditCheckState()
+                    Log.d(TAG, "Credit check error: ${state.message}")
+                }
+                is CreditCheckState.Idle -> {
+                    // Do nothing
+                }
+            }
+        })
+    }
+
+    private fun showNoCreditsDialog() {
+        AlertDialogManager.showTwoButtonDialog(
+            activity = this@VitalScanActivity,
+            title = "No Credits Available",
+            message = "You don't have any credits available to do scan. Please purchase a package to continue.",
+            cancelButtonText = "Cancel",
+            okButtonText = "Buy Package",
+            cancelable = false,
+            dialogClickListener = object : TwoButtonDialogClickListener {
+                override fun onCancelClicked() {
+                    // Do nothing, just dismiss the dialog
+                }
+
+                override fun onOkClicked() {
+                    // Navigate to PackagesActivity
+                    PackagesActivity.startActivity(this@VitalScanActivity)
+                }
+            }
+        )
     }
 
     override fun onDestroy() {
@@ -454,7 +432,7 @@ class VitalScanActivity : BaseActivity(),
 
     override fun onResume() {
         super.onResume()
-//        authViewmodel.getUserById(PreferenceManager.user?.userId!!,this)
+        viewModel.checkAvailableCredits(this)
     }
 
     override fun onStart() {
@@ -484,25 +462,29 @@ class VitalScanActivity : BaseActivity(),
                 requestCameraPermission()
             }
         }
-
     }
 
     private fun createSession() {
         try {
-            Log.d(TAG, "createSession: user ${PreferenceManager.user}")
-//            val key = if (PreferenceManager.user?.userKey.isNullOrBlank()) PreferenceManager.user?.licenseKey else PreferenceManager.user?.userKey
-            val key = "77BFAD-C3EA7E-4FDB92-9553AE-8B8C3C-54BD70"
+            val key = PreferenceManager.Key
+
             val licenseDetails = LicenseDetails(key)
-            Log.d(TAG, "createSession: key $key")
+
             if (subject != null){
-                Log.d(TAG, "createSession: subject detail $subject")
+
                 val sex = when(subject?.sex){
                     Sex.MALE -> Sex.MALE
                     Sex.FEMALE -> Sex.FEMALE
                     else  -> Sex.UNSPECIFIED
                 }
-                val userInformation = UserInformation.Builder().setSex(sex).setAge(subject!!.age!!.toDouble()).setWeight(subject!!.weight!!.toDouble()).setHeight(subject!!.height!!.toDouble()).setSmokingStatus(subject!!.isSmoker).build()
-                Log.d(TAG, "createSession: userInfo $userInformation")
+
+                val userInformation = UserInformation.Builder()
+                    .setSex(sex)
+                    .setAge(subject!!.age!!.toDouble())
+                    .setWeight(subject!!.weight!!.toDouble())
+                    .setHeight(subject!!.height!!.toDouble())
+                    .setSmokingStatus(subject!!.isSmoker).build()
+
                 session = FaceSessionBuilder(applicationContext).apply {
                     withUserInformation(userInformation)
                     withImageListener(this@VitalScanActivity)
@@ -511,7 +493,6 @@ class VitalScanActivity : BaseActivity(),
                     withSessionInfoListener(this@VitalScanActivity)
                 }.run { build(licenseDetails) }
             }else{
-                Log.d(TAG, "createSession: subject detail null")
                 session = FaceSessionBuilder(applicationContext).apply {
                     withImageListener(this@VitalScanActivity)
                     withDetectionAlwaysOn(true)
@@ -594,7 +575,6 @@ class VitalScanActivity : BaseActivity(),
 
     override fun onError(errorData: ErrorData?) {
         runOnUiThread {
-            Log.d(TAG, "onError: error ${errorData?.code} error $errorData")
             showError(errorData?.code)
             clearCanvas()
             stopTimeCount()
@@ -641,11 +621,7 @@ class VitalScanActivity : BaseActivity(),
                     }
                 }
             } else {
-//                if (session?.state == SessionState.READY
-//                    && session?.state != SessionState.PROCESSING){
-//                    session?.start(scanDuration)
-//                }
-                // setting image bitmap
+
                 if (session?.state == SessionState.PROCESSING) {
                     setScanUi(1)
                     updateReadingProgressMsg()
@@ -660,12 +636,9 @@ class VitalScanActivity : BaseActivity(),
                 binding.measurementsLayout.tvScanTime.setTextColor(normalColor)
                 binding.measurementsLayout.tvBpm.setTextColor(normalColor)
                 binding.measurementsLayout.tvScanBpmValue.setTextColor(normalColor)
-//                binding.measurementsLayout.readingProgressBar.progressTintList =
-//                    ColorStateList.valueOf(progNormColor)
             }
 
             binding.cameraView.lockCanvas()?.let { canvas ->
-                // Drawing the bitmap on the TextureView canvas
                 val image = imageData.image
                 canvas.drawBitmap(
                     image,
@@ -679,9 +652,7 @@ class VitalScanActivity : BaseActivity(),
                     null
                 )
 
-                //Drawing the face detection (if not null..)
                 imageData.roi?.let roi@{ faceDetectionRect ->
-                    //First we scale the SDK face detection rectangle to fit the TextureView size
                     val targetRect = RectF(faceDetectionRect)
                     val m = Matrix()
                     m.postScale(1f, 1f, image.width / 2f, image.height / 2f)
@@ -690,7 +661,6 @@ class VitalScanActivity : BaseActivity(),
                         binding.cameraView.height.toFloat() / image.height.toFloat()
                     )
                     m.mapRect(targetRect)
-                    // Then we draw it on the Canvas
                     if (isDetected) {
                         canvas.drawBitmap(faceDetectionNormal ?: return@roi, null, targetRect, null)
                     } else {
@@ -722,423 +692,20 @@ class VitalScanActivity : BaseActivity(),
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onFinalResults(finalResults: VitalSignsResults?) {
-
-        val heartRate = if (finalResults?.getResult(VitalSignTypes.PULSE_RATE)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.PULSE_RATE).value
-        }
-
-        var pulseRateConfidenceOrdinal: String? = ""
-        if ((finalResults?.getResult(VitalSignTypes.PULSE_RATE) as? VitalSignPulseRate)?.confidence?.level?.ordinal != null) {
-            pulseRateConfidenceOrdinal = (finalResults?.getResult(VitalSignTypes.PULSE_RATE) as? VitalSignPulseRate)?.confidence?.level.toString()
-        }
-
-
-        val breathingRate = if (finalResults?.getResult(VitalSignTypes.RESPIRATION_RATE)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.RESPIRATION_RATE).value
-        }
-
-        var respirationRateConfidenceOrdinal: String? = ""
-        if ((finalResults?.getResult(VitalSignTypes.RESPIRATION_RATE) as? VitalSignRespirationRate)?.confidence?.level?.ordinal != null) {
-            respirationRateConfidenceOrdinal = (finalResults?.getResult(VitalSignTypes.RESPIRATION_RATE) as? VitalSignRespirationRate)?.confidence?.level?.toString()
-        }
-
-        val prq = if (finalResults?.getResult(VitalSignTypes.PRQ)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.PRQ).value
-        }
-
-        var prqConfidenceOrdinal: String? = ""
-        if ((finalResults?.getResult(VitalSignTypes.PRQ) as? VitalSignPRQ)?.confidence?.level?.ordinal != null) {
-            prqConfidenceOrdinal = (finalResults?.getResult(VitalSignTypes.PRQ) as? VitalSignPRQ)?.confidence?.level?.toString()
-        }
-
-        val bloodPressureSystolic = if (finalResults?.getResult(VitalSignTypes.BLOOD_PRESSURE)?.value == null) {
-            getString(R.string._0)
-        } else {
-            val systolic = finalResults.getResult(VitalSignTypes.BLOOD_PRESSURE) as VitalSignBloodPressure
-            "" + systolic.value.systolic
-        }
-
-        val bloodPressureDiastolic = if (finalResults?.getResult(VitalSignTypes.BLOOD_PRESSURE)?.value == null) {
-            getString(R.string._0)
-        } else {
-            val diastolic = finalResults.getResult(VitalSignTypes.BLOOD_PRESSURE) as VitalSignBloodPressure
-            "" + diastolic.value.diastolic
-        }
-
-        val hrv_sdnn = if (finalResults?.getResult(VitalSignTypes.SDNN)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.SDNN).value
-        }
-
-        var sdnnConfidenceOrdinal: String? = ""
-        if ((finalResults?.getResult(VitalSignTypes.SDNN) as? VitalSignSDNN)?.confidence?.level?.ordinal != null) {
-            sdnnConfidenceOrdinal = (finalResults?.getResult(VitalSignTypes.SDNN) as? VitalSignSDNN)?.confidence?.level?.toString()
-        }
-
-        val oxygenSaturation = if (finalResults?.getResult(VitalSignTypes.OXYGEN_SATURATION)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.OXYGEN_SATURATION).value
-        }
-
-        val wellnessIndex =  if (finalResults?.getResult(VitalSignTypes.WELLNESS_INDEX)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.WELLNESS_INDEX).value
-        }
-
-
-        val hemoglobin = if (finalResults?.getResult(VitalSignTypes.HEMOGLOBIN)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.HEMOGLOBIN).value
-        }
-
-        val hemoglobinA1C = if (finalResults?.getResult(VitalSignTypes.HEMOGLOBIN_A1C)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.HEMOGLOBIN_A1C)?.value
-        }
-
-        val recoveryAbility = if (finalResults?.getResult(VitalSignTypes.PNS_ZONE)?.value == null) {
-            getString(R.string.n_a)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.PNS_ZONE)?.value
-        }
-
-        val stressResp = if (finalResults?.getResult(VitalSignTypes.SNS_ZONE)?.value == null) {
-            getString(R.string.n_a)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.SNS_ZONE)?.value
-        }
-
-
-        val stressLevel = if (finalResults?.getResult(VitalSignTypes.STRESS_LEVEL)?.value == null) {
-            getString(R.string.n_a)
-
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.STRESS_LEVEL)?.value
-        }
-
-
-        val stressIndex = if (finalResults?.getResult(VitalSignTypes.STRESS_INDEX)?.value == null) {
-            getString(R.string.n_a)
-
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.STRESS_INDEX)?.value
-        }
-
-        val highHemoglobinA1CRisk = if (finalResults?.getResult(VitalSignTypes.HIGH_HEMOGLOBIN_A1C_RISK)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.HIGH_HEMOGLOBIN_A1C_RISK).value
-        }
-
-        val highBloodPressureRisk = if (finalResults?.getResult(VitalSignTypes.HIGH_BLOOD_PRESSURE_RISK)?.value == null) {
-            getString(R.string._0)
-        } else {
-            "" + finalResults.getResult(VitalSignTypes.HIGH_BLOOD_PRESSURE_RISK).value
-        }
-
-
-        var meanRriValue: Int = 0
-        var meanRriConfidence: Int = 0
-        (finalResults?.getResult(VitalSignTypes.MEAN_RRI) as? VitalSignMeanRRI)?.let { meanRRI ->
-            if (meanRRI.value != null) {
-                meanRriValue = meanRRI.value
-            }
-            if (meanRRI.confidence?.level?.ordinal != null) {
-                meanRriConfidence = meanRRI.confidence?.level?.ordinal!!
-            }
-        }
-
-        var rmssdValue: Int = 0
-        (finalResults?.getResult(VitalSignTypes.RMSSD) as? VitalSignRMSSD)?.let { rmssd ->
-            if (rmssd.value != null) {
-                rmssdValue = rmssd.value
-            }
-        }
-
-        var sd1Value: Int = 0
-        (finalResults?.getResult(VitalSignTypes.SD1) as? VitalSignSD1)?.let { sd1 ->
-            if (sd1.value != null) {
-                sd1Value = sd1.value
-            }
-        }
-
-        var sd2Value: Int = 0
-        (finalResults?.getResult(VitalSignTypes.SD2) as? VitalSignSD2)?.let { sd2 ->
-            if (sd2.value != null) {
-                sd2Value = sd2.value
-            }
-        }
-        var lfhfValue: Double = 0.0
-        (finalResults?.getResult(VitalSignTypes.LFHF) as? VitalSignLFHF)?.let { lfhf ->
-            if (lfhf.value != null) {
-                lfhfValue = lfhf.value
-            }
-        }
-
-        var snsIndexValue: Double = 0.0
-        (finalResults?.getResult(VitalSignTypes.SNS_INDEX) as? VitalSignSNSIndex)?.let { snsIndex ->
-            if (snsIndex.value != null) {
-                snsIndexValue = snsIndex.value
-            }
-        }
-
-        var pnsIndexValue: Double = 0.0
-        (finalResults?.getResult(VitalSignTypes.PNS_INDEX) as? VitalSignPNSIndex)?.let { pnsIndex ->
-            if (pnsIndex.value != null) {
-                pnsIndexValue = pnsIndex.value
-            }
-        }
-        var ascvd =  if(finalResults?.getResult(VitalSignTypes.ASCVD_RISK)?.value == null){
-            getString(R.string.n_a)
-            //  naCount++
-        } else{
-                (finalResults.getResult(VitalSignTypes.ASCVD_RISK) as VitalSignASCVDRisk).value.toString()
-        }
-        Log.d("FinalResult(ScanByFaceActivity) = ascvdRisk ", ""+finalResults?.getResult(VitalSignTypes.ASCVD_RISK)?.value)
-
-        var heartAge = if(finalResults?.getResult(VitalSignTypes.HEART_AGE)?.value == null){
-            getString(R.string.n_a)
-            //  naCount++
-        } else{
-                (finalResults.getResult(VitalSignTypes.HEART_AGE) as VitalSignHeartAge).value.toString()
-        }
-        Log.d("FinalResult(ScanByFaceActivity) = heartAge",""+finalResults?.getResult(VitalSignTypes.HEART_AGE)?.value)
-
-        var lowHemoglobinRisk = if(finalResults?.getResult(VitalSignTypes.LOW_HEMOGLOBIN_RISK)?.value == null){
-            getString(R.string._0)
-            //  naCount++
-        } else{
-                (finalResults.getResult(VitalSignTypes.LOW_HEMOGLOBIN_RISK) as VitalSignLowHemoglobinRisk).value.ordinal.toString()
-        }
-        Log.d("FinalResult(ScanByFaceActivity) = lowHemoglobinRisk",""+finalResults?.getResult(VitalSignTypes.LOW_HEMOGLOBIN_RISK)?.value)
-
-        var highFastingGlucoseRisk  = if(finalResults?.getResult(VitalSignTypes.HIGH_FASTING_GLUCOSE_RISK)?.value == null){
-            getString(R.string._0)
-            //  naCount++
-        } else{
-                (finalResults.getResult(VitalSignTypes.HIGH_FASTING_GLUCOSE_RISK) as VitalSignHighFastingGlucoseRisk).value.ordinal.toString()
-        }
-        Log.d("FinalResult(ScanByFaceActivity) = highFastingGlucoseRisk",""+finalResults?.getResult(VitalSignTypes.HIGH_FASTING_GLUCOSE_RISK)?.value)
-
-        var highTotalCholesterolRisk = if(finalResults?.getResult(VitalSignTypes.HIGH_TOTAL_CHOLESTEROL_RISK)?.value == null){
-            getString(R.string._0)
-            // naCount++
-        } else{
-
-                (finalResults.getResult(VitalSignTypes.HIGH_TOTAL_CHOLESTEROL_RISK) as VitalSignHighTotalCholesterolRisk).value.ordinal.toString()
-        }
-
-        val wellnessLevel =  finalResults?.getResult(VitalSignTypes.WELLNESS_LEVEL)?.value.toString()
-
-        val date = DateFormatter.getCurrentDate()
-        val time = DateFormatter.getCurrentTime()
-        val scanResultObject = MeasurementResult(
-         date = date,
-         time = time,
-         name = subject?.name.toString(),
-         age = subject?.age.toString(),
-         gender = subject?.sex.toString(),
-         height = subject?.height.toString(),
-         weight = subject?.weight.toString(),
-         heartRate = heartRate,
-         breathingRate =  breathingRate,
-         PRQ = prq,
-         hrv_sdnn = hrv_sdnn,
-         hypertensionRisk = highBloodPressureRisk,
-         diabeticRisk = highHemoglobinA1CRisk,
-         ascvd = ascvd,
-         highFastingGlucose = highFastingGlucoseRisk,
-         lowHemoglobinRisk = lowHemoglobinRisk,
-         heartAge  = heartAge,
-         totalColestrol = highTotalCholesterolRisk,
-         oxygenSat = oxygenSaturation,
-         bloodPressureSystolic = bloodPressureSystolic,
-         bloodPressureDistolic = bloodPressureDiastolic,
-         hemoglobin = hemoglobin,
-         hemoglobinA1c = hemoglobinA1C,
-         stressLevel = stressLevel,
-         meanRri = meanRriValue,
-         pnsIndex  = pnsIndexValue,
-         snsIndex  = snsIndexValue,
-         RMMSD = rmssdValue,
-         sd1  = sd1Value,
-         sd2  = sd2Value,
-         lfhf = lfhfValue,
-         recoveryRate = recoveryAbility,
-         stressResp = stressResp,
-         wellnessLevel = wellnessLevel,
-         wellnessIndex = wellnessIndex,
-         heartRateConfi = pulseRateConfidenceOrdinal,
-         breathingRateConfid = respirationRateConfidenceOrdinal,
-         prqConfi = prqConfidenceOrdinal,
-         sdnCofi = sdnnConfidenceOrdinal)
-        val list = ScanResultGenerator.createScanResult(
-            context = this,
-            result = scanResultObject
-        )
-        Log.d(TAG, "onFinalResults: list ${list.size}")
         runOnUiThread {
             stopTimeCount()
-            if(isTerminated){
-            }else if (bloodPressureDiastolic=="0" || bloodPressureSystolic == "0" || heartRate == "0" || oxygenSaturation == "0" || prq == "0" || breathingRate == "0") {
-                AlertDialogManager.showConfirmationDialog(this,
-                    title = getString(R.string.data_not_collected),
-                    message = getString(R.string.required_vitals_not_collected),
-                    buttonMessage = getString(string.ok),
-                    cancelable = true,
-                    dialogClickListener = object : DialogClickListener {
-                        override fun onButton1Clicked() {
-                        }
-                    })
-            }else {
-                // Save locally for backup
-                historyViewmodel.insertOrUpdateScanResult(this, scanResultObject)
+            if (isTerminated) {
+                return@runOnUiThread
+            }
 
-                // Create API request from scan results
-                val saveRequest = createSaveScanHistoryRequest(finalResults)
+            viewModel.processScanResults(finalResults)
 
-                // Call API to save scan history - observer will handle navigation
-                historyViewmodel.saveScanHistory(saveRequest)
+            // If in doctor mode, reset session to user's own data for next scan
+            if (tempPatientSubject != null) {
+                resetSessionToUserData()
             }
         }
-
-
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun createSaveScanHistoryRequest(finalResults: VitalSignsResults?): SaveScanHistoryRequest {
-        // Extract heart rate
-        val heartRate = finalResults?.getResult(VitalSignTypes.PULSE_RATE)?.value as? Int ?: 0
-        val heartRateLevel = (finalResults?.getResult(VitalSignTypes.PULSE_RATE) as? VitalSignPulseRate)?.confidence?.level?.ordinal ?: 0
-
-        // Extract breathing rate
-        val breathingRate = finalResults?.getResult(VitalSignTypes.RESPIRATION_RATE)?.value as? Int ?: 0
-        val breathingRateLevel = (finalResults?.getResult(VitalSignTypes.RESPIRATION_RATE) as? VitalSignRespirationRate)?.confidence?.level?.ordinal ?: 0
-
-        // Extract oxygen saturation
-        val oxygenSaturation = finalResults?.getResult(VitalSignTypes.OXYGEN_SATURATION)?.value as? Int ?: 0
-
-        // Extract SDNN
-        val sdnn = finalResults?.getResult(VitalSignTypes.SDNN)?.value as? Int ?: 0
-        val sdnnLevel = (finalResults?.getResult(VitalSignTypes.SDNN) as? VitalSignSDNN)?.confidence?.level?.ordinal ?: 0
-
-        // Extract stress level
-        val stressLevel = finalResults?.getResult(VitalSignTypes.STRESS_LEVEL)?.value as? Int ?: 0
-
-        // Extract blood pressure
-        val bpResult = finalResults?.getResult(VitalSignTypes.BLOOD_PRESSURE) as? VitalSignBloodPressure
-        val bloodPressureSystolic = bpResult?.value?.systolic ?: 0
-        val bloodPressureDiastolic = bpResult?.value?.diastolic ?: 0
-
-        // Extract hemoglobin
-        val hemoglobin = (finalResults?.getResult(VitalSignTypes.HEMOGLOBIN)?.value as? Number)?.toDouble() ?: 0.0
-
-        // Extract hemoglobin A1C
-        val hemoglobinA1c = (finalResults?.getResult(VitalSignTypes.HEMOGLOBIN_A1C)?.value as? Number)?.toDouble() ?: 0.0
-
-        // Extract risks
-        val diabetesRisk = finalResults?.getResult(VitalSignTypes.HIGH_HEMOGLOBIN_A1C_RISK)?.value as? Int ?: 0
-        val hypertensionRisk = finalResults?.getResult(VitalSignTypes.HIGH_BLOOD_PRESSURE_RISK)?.value as? Int ?: 0
-
-        // Extract wellness
-        val wellnessIndex = finalResults?.getResult(VitalSignTypes.WELLNESS_INDEX)?.value as? Int ?: 0
-        val wellnessLevel = finalResults?.getResult(VitalSignTypes.WELLNESS_LEVEL)?.value?.toString() ?: ""
-
-        // Extract PRQ
-        val prq = (finalResults?.getResult(VitalSignTypes.PRQ)?.value as? Number)?.toDouble() ?: 0.0
-        val prqLevel = (finalResults?.getResult(VitalSignTypes.PRQ) as? VitalSignPRQ)?.confidence?.level?.ordinal ?: 0
-
-        // Extract recovery and stress response
-        val recoveryAbility = finalResults?.getResult(VitalSignTypes.PNS_ZONE)?.value as? Int ?: 0
-        val stressResponse = finalResults?.getResult(VitalSignTypes.SNS_ZONE)?.value as? Int ?: 0
-
-        // Extract SNS/PNS indices
-        val snsIndex = (finalResults?.getResult(VitalSignTypes.SNS_INDEX) as? VitalSignSNSIndex)?.value ?: 0.0
-        val pnsIndex = (finalResults?.getResult(VitalSignTypes.PNS_INDEX) as? VitalSignPNSIndex)?.value ?: 0.0
-
-        // Extract LF/HF
-        val lfhf = (finalResults?.getResult(VitalSignTypes.LFHF) as? VitalSignLFHF)?.value ?: 0.0
-
-        // Extract SD1, SD2
-        val sd1 = (finalResults?.getResult(VitalSignTypes.SD1) as? VitalSignSD1)?.value ?: 0
-        val sd2 = (finalResults?.getResult(VitalSignTypes.SD2) as? VitalSignSD2)?.value ?: 0
-
-        // Extract RMSSD
-        val rmssd = (finalResults?.getResult(VitalSignTypes.RMSSD) as? VitalSignRMSSD)?.value ?: 0
-
-        // Extract Mean RRI
-        val meanRri = (finalResults?.getResult(VitalSignTypes.MEAN_RRI) as? VitalSignMeanRRI)?.value ?: 0
-
-        // Extract additional risks
-        val highBloodPressureRisk = finalResults?.getResult(VitalSignTypes.HIGH_BLOOD_PRESSURE_RISK)?.value as? Int ?: 0
-        val highHemoglobinA1cRisk = finalResults?.getResult(VitalSignTypes.HIGH_HEMOGLOBIN_A1C_RISK)?.value as? Int ?: 0
-        val highFastingGlucoseRisk = (finalResults?.getResult(VitalSignTypes.HIGH_FASTING_GLUCOSE_RISK) as? VitalSignHighFastingGlucoseRisk)?.value?.ordinal ?: 0
-        val highTotalCholesterolRisk = (finalResults?.getResult(VitalSignTypes.HIGH_TOTAL_CHOLESTEROL_RISK) as? VitalSignHighTotalCholesterolRisk)?.value?.ordinal ?: 0
-        val lowHemoglobinRisk = (finalResults?.getResult(VitalSignTypes.LOW_HEMOGLOBIN_RISK) as? VitalSignLowHemoglobinRisk)?.value?.ordinal ?: 0
-
-        // Extract ASCVD risk and heart age
-        val ascvdRisk = (finalResults?.getResult(VitalSignTypes.ASCVD_RISK) as? VitalSignASCVDRisk)?.value ?: 0.0
-        val heartAge = (finalResults?.getResult(VitalSignTypes.HEART_AGE) as? VitalSignHeartAge)?.value ?: 0
-        val ascvdRiskLevel = 0 // SDK doesn't provide this level directly
-
-        // Calculate derived values
-        val cardiacWorkload = (bloodPressureSystolic * heartRate).toDouble()
-        val pulsePressure = bloodPressureSystolic - bloodPressureDiastolic
-        val meanArterialPressure = bloodPressureDiastolic + (pulsePressure / 3)
-
-        return SaveScanHistoryRequest(
-            heartRate = heartRate,
-            heartRateLevel = heartRateLevel,
-            breathingRate = breathingRate,
-            breathingRateLevel = breathingRateLevel,
-            oxygenSaturation = oxygenSaturation,
-            sdnn = sdnn,
-            sdnnLevel = sdnnLevel,
-            stressLevel = stressLevel,
-            bloodPressureSystolic = bloodPressureSystolic,
-            bloodPressureDiastolic = bloodPressureDiastolic,
-            hemoglobin = hemoglobin,
-            hemoglobinA1c = hemoglobinA1c,
-            diabetesRisk = diabetesRisk,
-            hypertensionRisk = hypertensionRisk,
-            wellnessIndex = wellnessIndex,
-            wellnessLevel = wellnessLevel,
-            prq = prq,
-            prqLevel = prqLevel,
-            recoveryAbility = recoveryAbility,
-            stressResponse = stressResponse,
-            snsIndex = snsIndex,
-            pnsIndex = pnsIndex,
-            lfhf = lfhf,
-            sd1 = sd1,
-            sd2 = sd2,
-            rmssd = rmssd,
-            meanRri = meanRri,
-            highBloodPressureRisk = highBloodPressureRisk,
-            highHemoglobinA1cRisk = highHemoglobinA1cRisk,
-            highFastingGlucoseRisk = highFastingGlucoseRisk,
-            highTotalCholesterolRisk = highTotalCholesterolRisk,
-            lowHemoglobinRisk = lowHemoglobinRisk,
-            ascvdRisk = ascvdRisk,
-            heartAge = heartAge,
-            ascvdRiskLevel = ascvdRiskLevel,
-            cardiacWorkload = cardiacWorkload,
-            pulsePressure = pulsePressure,
-            meanArterialPressure = meanArterialPressure
-        )
     }
 
     override fun onWarning(warningData: WarningData) {
@@ -1163,7 +730,7 @@ class VitalScanActivity : BaseActivity(),
             if (session?.state == SessionState.READY) {
                 when {
                     (!NetworkUtils.isNetworkAvailable(this@VitalScanActivity)) -> {
-                        Log.d("TAG", "getUserById: 2 ")
+
                         AlertDialogManager.showConfirmationDialog(this@VitalScanActivity,
                             title = getString(R.string.error),
                             message = NetworkErrorCode.getNetworkError(100,null),
@@ -1175,26 +742,21 @@ class VitalScanActivity : BaseActivity(),
                                 }
                             })
                     }
+                    (PreferenceManager.availableCredits <= 0) -> {
+                        // No credits available, show dialog
+                        showNoCreditsDialog()
+                    }
                     else -> {
-                        // put info dialog
-                        val dialog =
-                            DialogHowToScan(this@VitalScanActivity,object : DialogHowToScan.OnClick{
-                                override fun onDismiss() {
-                                    try {
-//                                        Log.d(TAG, "onDismiss: userid ${ PreferenceManager.user?.userId!!.toInt()}")
-//                                        val request = UserRequest(userId = PreferenceManager.user?.userId!!.toInt())
-//                                        viewModel.updateScan(request, this@VitalScanActivity)
-                                        binding.measurementsLayout.tvScanningMsg.visibility =
-                                            View.VISIBLE
-                                        session?.start(scanDuration)
-                                        startTimeCount()
-                                        isTerminated = false
-                                    } catch (e: HealthMonitorException) {
-                                        showError(e.errorCode)
-                                    }
-                                }
-                            })
-                        dialog.show(supportFragmentManager, "Info Dialog")
+                        // Check if user is a doctor
+                        val isDoctor = PreferenceManager.authUser?.doctor == true
+
+                        if (isDoctor) {
+                            // Show patient info bottom sheet for doctor mode
+                            showPatientInfoBottomSheet()
+                        } else {
+                            // Normal flow - show DialogHowToScan
+                            showHowToScanDialogAndStartScan()
+                        }
                     }
                 }
             } else {
@@ -1260,7 +822,7 @@ class VitalScanActivity : BaseActivity(),
             override fun run() {
                 mTime--
                 mPercentage++
-//                updateReadingProgressMsg()
+//              updateReadingProgressMsg()
                 try {
                     progressPercent = ((mPercentage.toDouble() / scanDuration) * 100)
                     binding.measurementsLayout.readingProgressBar.setProgressPercentage(progressPercent,true)
@@ -1276,7 +838,6 @@ class VitalScanActivity : BaseActivity(),
     private fun stopTimeCount() {
         mTime = scanDuration.toInt()
         mPercentage = 0
-//        binding.measurementsLayout.tvScanningMsg.visibility = View.GONE
         binding.measurementsLayout.tvScanTime.text = "00:"+scanDuration.toString()
         binding.measurementsLayout.tvScanBpmValue.text = getString(R.string._0)
         binding.measurementsLayout.readingProgressBar.setProgressPercentage(0.toDouble(),true)
@@ -1366,9 +927,9 @@ class VitalScanActivity : BaseActivity(),
                         override fun onButton1Clicked() {
                             stopTimeCount()
                         }
-                    })
+                    }
+                )
             }
-
             else -> {
                 showAlert(
                     title = getString(R.string.error),
@@ -1378,10 +939,264 @@ class VitalScanActivity : BaseActivity(),
         }
     }
 
-    fun getCurrentDateTime(): String {
-        val dateFormat = SimpleDateFormat("EEE dd MMM yyyy | hh:mm a", Locale.getDefault())
-        val cal = Calendar.getInstance()
-        return dateFormat.format(cal.time)
+    private fun setupComposeBottomSheet() {
+        composeView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@VitalScanActivity)
+            setViewTreeSavedStateRegistryOwner(this@VitalScanActivity)
+            // Set layout params to match parent but not intercept touches when empty
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setContent {
+                VitalSelfTheme {
+                    if (showPatientBottomSheet.value) {
+                        PatientInfoBottomSheet(
+                            state = patientInfoState.value,
+                            onEvent = { handlePatientInfoEvent(it) },
+                            onDismiss = { hidePatientInfoBottomSheet() }
+                        )
+                    }
+                }
+            }
+        }
+        // Add the ComposeView but make it not intercept touches when bottom sheet is not shown
+        (binding.root as ViewGroup).addView(composeView)
+
+        // Set visibility based on bottom sheet state
+        composeView?.visibility = View.GONE
+    }
+
+    private fun showPatientInfoBottomSheet() {
+        composeView?.visibility = View.VISIBLE
+        showPatientBottomSheet.value = true
+    }
+
+    private fun hidePatientInfoBottomSheet() {
+        showPatientBottomSheet.value = false
+        patientInfoState.value = PatientInfoState()
+        composeView?.visibility = View.GONE
+    }
+
+    private fun handlePatientInfoEvent(event: PatientInfoEvent) {
+        when (event) {
+            is PatientInfoEvent.NameChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(
+                    name = event.value,
+                    showError = false,
+                    errorField = PatientFieldError.NONE
+                )
+            }
+            is PatientInfoEvent.AgeChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(
+                    age = event.value,
+                    showError = false,
+                    errorField = PatientFieldError.NONE
+                )
+            }
+            is PatientInfoEvent.HeightChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(
+                    height = event.value,
+                    showError = false,
+                    errorField = PatientFieldError.NONE
+                )
+            }
+            is PatientInfoEvent.HeightUnitChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(heightUnit = event.value)
+            }
+            is PatientInfoEvent.WeightChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(
+                    weight = event.value,
+                    showError = false,
+                    errorField = PatientFieldError.NONE
+                )
+            }
+            is PatientInfoEvent.WeightUnitChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(weightUnit = event.value)
+            }
+            is PatientInfoEvent.GenderChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(
+                    gender = event.value,
+                    showError = false,
+                    errorField = PatientFieldError.NONE
+                )
+            }
+            is PatientInfoEvent.SmokerStatusChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(isSmoker = event.value)
+            }
+            is PatientInfoEvent.SubmitClicked -> {
+                val validation = validatePatientInfo(patientInfoState.value)
+                if (validation == PatientValidation.VALID) {
+                    val patientDetails = createPatientSubjectDetails(patientInfoState.value)
+                    hidePatientInfoBottomSheet()
+                    handlePatientSubmit(patientDetails)
+                } else {
+                    patientInfoState.value = patientInfoState.value.copy(
+                        showError = true,
+                        errorField = getPatientErrorField(validation),
+                        errorMessage = getPatientValidationErrorMessage(validation)
+                    )
+                }
+            }
+            is PatientInfoEvent.DismissClicked -> {
+                hidePatientInfoBottomSheet()
+            }
+        }
+    }
+
+    private fun validatePatientInfo(state: PatientInfoState): PatientValidation {
+        return when {
+            state.name.isBlank() -> PatientValidation.INVALID_NAME
+            state.age.isBlank() || state.age.toIntOrNull() == null -> PatientValidation.INVALID_AGE
+            state.gender.isBlank() -> PatientValidation.INVALID_GENDER
+            state.height.isBlank() || state.height.toDoubleOrNull() == null -> PatientValidation.INVALID_HEIGHT
+            state.weight.isBlank() || state.weight.toDoubleOrNull() == null -> PatientValidation.INVALID_WEIGHT
+            else -> PatientValidation.VALID
+        }
+    }
+
+    private fun getPatientErrorField(validation: PatientValidation): PatientFieldError {
+        return when (validation) {
+            PatientValidation.INVALID_NAME -> PatientFieldError.NAME
+            PatientValidation.INVALID_AGE -> PatientFieldError.AGE
+            PatientValidation.INVALID_GENDER -> PatientFieldError.GENDER
+            PatientValidation.INVALID_HEIGHT -> PatientFieldError.HEIGHT
+            PatientValidation.INVALID_WEIGHT -> PatientFieldError.WEIGHT
+            PatientValidation.VALID -> PatientFieldError.NONE
+        }
+    }
+
+    private fun getPatientValidationErrorMessage(validation: PatientValidation): String {
+        return when (validation) {
+            PatientValidation.INVALID_NAME -> "Please enter patient name"
+            PatientValidation.INVALID_AGE -> "Please enter a valid age"
+            PatientValidation.INVALID_GENDER -> "Please select gender"
+            PatientValidation.INVALID_HEIGHT -> "Please enter valid height"
+            PatientValidation.INVALID_WEIGHT -> "Please enter valid weight"
+            PatientValidation.VALID -> ""
+        }
+    }
+
+    private fun createPatientSubjectDetails(state: PatientInfoState): Model.SubjectDetails {
+        // Convert height to cm if needed
+        val heightInCm = if (state.heightUnit == "ft") {
+            state.height.toDoubleOrNull()?.times(30.48) ?: 0.0
+        } else {
+            state.height.toDoubleOrNull() ?: 0.0
+        }
+
+        // Convert weight to kg if needed
+        val weightInKg = if (state.weightUnit == "lb") {
+            state.weight.toDoubleOrNull()?.times(0.453592) ?: 0.0
+        } else {
+            state.weight.toDoubleOrNull() ?: 0.0
+        }
+
+        val sex = when (state.gender.lowercase()) {
+            "male" -> Sex.MALE
+            "female" -> Sex.FEMALE
+            else -> Sex.UNSPECIFIED
+        }
+
+        val smokingStatus = when (state.isSmoker) {
+            true -> SmokingStatus.SMOKER
+            false -> SmokingStatus.NON_SMOKER
+            null -> SmokingStatus.UNSPECIFIED
+        }
+
+        return Model.SubjectDetails(
+            name = state.name,
+            sex = sex,
+            age = state.age.toDoubleOrNull() ?: 0.0,
+            weight = weightInKg,
+            height = heightInCm,
+            heightUnit = "cm",
+            weightUnit = "kg",
+            isSmoker = smokingStatus
+        )
+    }
+
+    private fun handlePatientSubmit(patientDetails: Model.SubjectDetails) {
+        // Store temporarily (NOT in PreferenceManager)
+        tempPatientSubject = patientDetails
+
+        // Terminate existing session first
+        session?.terminate()
+        session = null
+
+        // Use a handler to give the SDK time to clean up, then create new session
+        Handler(Looper.getMainLooper()).postDelayed({
+            createSessionWithPatient(patientDetails)
+        }, 500)
+    }
+
+    private fun createSessionWithPatient(patientDetails: Model.SubjectDetails) {
+        try {
+            // Create new session with patient data
+            val key = PreferenceManager.Key
+            val licenseDetails = LicenseDetails(key)
+
+            val sex = when(patientDetails.sex) {
+                Sex.MALE -> Sex.MALE
+                Sex.FEMALE -> Sex.FEMALE
+                else -> Sex.UNSPECIFIED
+            }
+
+            val userInformation = UserInformation.Builder()
+                .setSex(sex)
+                .setAge(patientDetails.age ?: 0.0)
+                .setWeight(patientDetails.weight ?: 0.0)
+                .setHeight(patientDetails.height ?: 0.0)
+                .setSmokingStatus(patientDetails.isSmoker)
+                .build()
+
+            session = FaceSessionBuilder(applicationContext).apply {
+                withUserInformation(userInformation)
+                withImageListener(this@VitalScanActivity)
+                withDetectionAlwaysOn(true)
+                withVitalSignsListener(this@VitalScanActivity)
+                withSessionInfoListener(this@VitalScanActivity)
+            }.run { build(licenseDetails) }
+
+            // After session is created successfully, show the dialog to start scan
+            showHowToScanDialogAndStartScan()
+
+        } catch (e: HealthMonitorException) {
+            showError(e.errorCode)
+        }
+    }
+
+    private fun showHowToScanDialogAndStartScan() {
+        val dialog = DialogHowToScan(this@VitalScanActivity, object : DialogHowToScan.OnClick {
+            override fun onDismiss() {
+                try {
+                    binding.measurementsLayout.tvScanningMsg.visibility = View.VISIBLE
+                    session?.start(scanDuration)
+                    startTimeCount()
+                    isTerminated = false
+                } catch (e: HealthMonitorException) {
+                    showError(e.errorCode)
+                }
+            }
+        })
+        dialog.show(supportFragmentManager, "Info Dialog")
+    }
+
+    private fun resetSessionToUserData() {
+        // Clear temporary patient data
+        tempPatientSubject = null
+
+        // Reset to use user's own SubjectDetails from PreferenceManager
+        subject = PreferenceManager.subjectDetails
+
+        // Terminate current session
+        session?.terminate()
+        session = null
+
+        // Use a handler to give the SDK time to clean up, then recreate session
+        Handler(Looper.getMainLooper()).postDelayed({
+            createSession()
+        }, 500)
     }
 
     private fun requestCameraPermission() {
@@ -1433,7 +1248,7 @@ class VitalScanActivity : BaseActivity(),
                 override fun onButton1Clicked() {
                     requestCameraPermission()
                 }
-            })
+        })
     }
 
     private fun showPermissionDeniedDialog() {
@@ -1450,56 +1265,33 @@ class VitalScanActivity : BaseActivity(),
                     }
                     startActivity(intent)
                 }
-            })
+        })
     }
 
+    private fun openMyResetApp() {
+        val userEmail = PreferenceManager.authUser?.email ?: ""
+        val deepLinkUrl = "https://deeplink.myreset.zone?email=$userEmail"
+        val packageName = "com.unipharma.myreset"
+        val appInstalled = isAppInstalled(packageName)
+
+        if (appInstalled) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLinkUrl))
+            startActivity(intent)
+        }else{
+            val playStoreIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("market://details?id=$packageName")
+            )
+            startActivity(playStoreIntent)
+        }
+    }
+
+    private fun isAppInstalled(packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
 }
-
-@Parcelize
-data class MeasurementResult(
-    val date: String,
-    val time : String,
-    val name : String,
-    val gender : String,
-    val age : String,
-    val height : String,
-    val weight : String,
-    val heartRate: String,
-    val breathingRate: String,
-    val PRQ: String,
-    val hrv_sdnn: String,
-
-    val hypertensionRisk: String,
-    val diabeticRisk: String,
-    val ascvd: String,
-    val highFastingGlucose : String,
-    val lowHemoglobinRisk : String,
-    val heartAge : String,
-    val totalColestrol: String,
-    val oxygenSat: String,
-    val bloodPressureSystolic: String,
-    val bloodPressureDistolic: String,
-
-
-    val hemoglobin: String,
-    val hemoglobinA1c: String,
-
-    val stressLevel: String,
-    val meanRri : Int,
-    val pnsIndex : Double,
-    val snsIndex : Double,
-    val RMMSD : Int,
-    val sd1 : Int,
-    val sd2 : Int,
-    val lfhf : Double,
-    val recoveryRate: String,
-    val stressResp: String,
-
-    val wellnessLevel: String,
-    val wellnessIndex: String,
-
-    val heartRateConfi: String?,
-    val breathingRateConfid: String?,
-    val prqConfi: String?,
-    val sdnCofi: String?
-) : Parcelable

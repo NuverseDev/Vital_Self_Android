@@ -24,6 +24,8 @@ object NetworkModule {
         val requestBuilder = originalRequest.newBuilder()
         if (!token.isNullOrEmpty()) {
             requestBuilder.addHeader("Authorization", "Bearer $token")
+            requestBuilder.addHeader("platform","ANDROID")
+            requestBuilder.addHeader("version","${BuildConfig.APP_VERSION_CODE}")
         }
         chain.proceed(requestBuilder.build())
     }

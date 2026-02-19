@@ -11,19 +11,17 @@ import com.vital_self.features.profile.data.model.UserModel
 
 object PreferenceManager {
     object PrefConstant {
-        const val SESSION_TIME_COUNTER = "session_time_counter"
-        const val USER_ID = "user_id"
-        const val AVAILABLE_SCAN = "available_scan"
-        const val STATUS = "status"
         const val ISLOGGEDIN = "isloggedin"
         const val IS_FIRST_TIME = "is_first_time"
+        const val IS_PROFILE_UPDATED = "is_profile_updated"
         const val SUBJECT = "subject"
         const val USER = "user"
         const val AUTH_USER = "auth_user"
         const val AUTH_TOKEN = "auth_token"
+        const val KEY = "key"
         const val APP_VERSION_MATCH = "app_version_match"
         const val IS_R_PASS = "is_R_Pass"
-        const val Face_SESSION_DURATION = 540000L
+        const val AVAILABLE_CREDITS = "available_credits"
     }
 
     private val prefs: SharedPreferences =
@@ -31,24 +29,6 @@ object PreferenceManager {
             VitalSelfApplication.getInstance().applicationContext.getString(R.string.app_name),
             Context.MODE_PRIVATE
         )
-
-
-//    var sessionDuration: Int
-//        get() = prefs.getInt(PrefConstant.SESSION_DURATION, 0)
-//        set(value) = prefs.edit().putInt(PrefConstant.SESSION_DURATION, value).apply()
-
-
-//    var userId : Int
-//        get() = prefs.getInt(PrefConstant.USER_ID, 0)
-//        set(value) = prefs.edit().putInt(PrefConstant.USER_ID, value).apply()
-
-//    var availableScan : Int
-//        get() = prefs.getInt(PrefConstant.AVAILABLE_SCAN, 0)
-//        set(value) = prefs.edit().putInt(PrefConstant.AVAILABLE_SCAN, value).apply()
-
-//    var status : Boolean
-//        get() = prefs.getBoolean(PrefConstant.STATUS, false)
-//        set(value) = prefs.edit().putBoolean(PrefConstant.STATUS, value).apply()
 
     var appVersionMatch : Boolean
         get() = prefs.getBoolean(PrefConstant.APP_VERSION_MATCH, true)
@@ -58,13 +38,13 @@ object PreferenceManager {
         get() = prefs.getBoolean(PrefConstant.ISLOGGEDIN, false)
         set(value) = prefs.edit().putBoolean(PrefConstant.ISLOGGEDIN, value).apply()
 
-    var isFirstTime : Boolean
+    var isProfileUpdated : Boolean
+        get() = prefs.getBoolean(PrefConstant.IS_PROFILE_UPDATED, false)
+        set(value) = prefs.edit().putBoolean(PrefConstant.IS_PROFILE_UPDATED, value).apply()
+
+    var isFreshInstalled : Boolean
         get() = prefs.getBoolean(PrefConstant.IS_FIRST_TIME, true)
         set(value) = prefs.edit().putBoolean(PrefConstant.IS_FIRST_TIME, value).apply()
-
-    var isRPass : Boolean
-        get() = prefs.getBoolean(PrefConstant.IS_R_PASS, true)
-        set(value) = prefs.edit().putBoolean(PrefConstant.IS_R_PASS, value).apply()
 
     var subjectDetails: Model.SubjectDetails?
         get() {
@@ -125,5 +105,21 @@ object PreferenceManager {
             }
             editor.apply()
         }
+
+    var Key: String?
+        get() = prefs.getString(PrefConstant.KEY, null)
+        set(value) {
+            val editor = prefs.edit()
+            if (value == null) {
+                editor.remove(PrefConstant.KEY)
+            } else {
+                editor.putString(PrefConstant.KEY, value)
+            }
+            editor.apply()
+        }
+
+    var availableCredits: Int
+        get() = prefs.getInt(PrefConstant.AVAILABLE_CREDITS, 0)
+        set(value) = prefs.edit().putInt(PrefConstant.AVAILABLE_CREDITS, value).apply()
 
 }
