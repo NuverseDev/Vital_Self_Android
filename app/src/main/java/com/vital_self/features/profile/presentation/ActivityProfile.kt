@@ -324,7 +324,8 @@ class ActivityProfile : ComponentActivity() {
             weight = weightInKg,
             weightUnit = state.weightUnit,
             gender = state.gender,
-            smokerStatus = smokerStatus
+            smokerStatus = smokerStatus,
+            doctor = PreferenceManager.authUser?.doctor!!
         )
         authViewModel.updateProfile(request, this)
     }
@@ -332,8 +333,9 @@ class ActivityProfile : ComponentActivity() {
     private fun handleProfileUpdateSuccess(data: ProfileUpdateResponse?, state: ProfileScreenState) {
         try {
             if (data?.status == true && data.data != null) {
-                // Update authUser with new data
-                PreferenceManager.authUser = data.data
+                // Update authUser with new data, preserving doctor status from existing user
+                val existingDoctor = PreferenceManager.authUser?.doctor ?: false
+                PreferenceManager.authUser = data.data.copy(doctor = existingDoctor)
                 Toast.makeText(this, data.message, Toast.LENGTH_SHORT).show()
                 authViewModel.resetProfileUpdateState()
                 finish()

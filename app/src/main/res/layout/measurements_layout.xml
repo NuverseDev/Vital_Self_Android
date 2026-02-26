@@ -49,9 +49,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_8"
+                android:visibility="invisible"
                 android:layout_marginHorizontal="@dimen/dp_18"
                 app:layout_constraintTop_toBottomOf="@+id/tv_scanning_error_desc"
-                tools:layout_editor_absoluteX="18dp">
+                >
 
                 <com.mackhartley.roundedprogressbar.RoundedProgressBar
                     android:id="@+id/reading_progress_bar"
@@ -110,6 +111,89 @@
                     app:layout_constraintTop_toTopOf="@+id/tv_bpm" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <FrameLayout
+                android:id="@+id/self_dr_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_18"
+                android:background="@drawable/bg_self_dr_container"
+                android:padding="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_scanning_error_desc"
+                app:layout_constraintTop_toTopOf="@id/constraintLayout2">
+
+                <View
+                    android:id="@+id/selector_indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/dp_45"
+                    android:layout_gravity="start|center_vertical"
+                    android:background="@drawable/bg_pill_selected" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_45"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:id="@+id/btn_self"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:id="@+id/iv_self_icon"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_stethescope"
+                            app:tint="@color/white_both_theme" />
+
+                        <TextView
+                            android:id="@+id/tv_self_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/inter_medium"
+                            android:text="Self"
+                            android:textColor="@color/white_both_theme"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/btn_doctor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:id="@+id/iv_doctor_icon"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_patient"
+                            app:tint="@color/secondary_front_color" />
+
+                        <TextView
+                            android:id="@+id/tv_doctor_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/inter_medium"
+                            android:text="Patient"
+                            android:textColor="@color/secondary_front_color"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/btn_start_stop"
                 android:layout_width="match_parent"
@@ -131,7 +215,7 @@
                     android:layout_height="match_parent"
                     android:fontFamily="@font/inter_bold"
                     android:gravity="center"
-                    android:text="Start"
+                    android:text="Measure Now"
                     android:textColor="@color/secondary_front_color"
                     android:textSize="@dimen/sp_18" />
             </androidx.cardview.widget.CardView>

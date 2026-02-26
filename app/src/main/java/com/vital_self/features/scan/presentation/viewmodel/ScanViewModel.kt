@@ -8,6 +8,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.biosensesignal.sdk.api.session.demographics.Sex
+import com.biosensesignal.sdk.api.session.user_info.SmokingStatus
 import com.biosensesignal.sdk.api.vital_signs.VitalSignTypes
 import com.biosensesignal.sdk.api.vital_signs.VitalSignsResults
 import com.biosensesignal.sdk.api.vital_signs.vitals.PNSZone
@@ -44,7 +46,12 @@ import com.vital_self.core.data.remote.model.CheckVersionResponse
 import com.vital_self.core.data.remote.model.Status
 import com.vital_self.core.utils.helpers.NetworkUtils
 import com.vital_self.features.packages.data.model.AvailableCreditsResponse
+import com.vital_self.core.domain.model.Model
+import com.vital_self.features.history.data.model.Gender
+import com.vital_self.features.history.data.model.HeightUnit
 import com.vital_self.features.history.data.model.SaveScanHistoryRequest
+import com.vital_self.features.history.data.model.SmokerUnit
+import com.vital_self.features.history.data.model.WeightUnit
 import com.vital_self.features.history.data.repository.HistoryRepository
 import com.vital_self.features.profile.data.model.UpdateScanResponse
 import com.vital_self.features.profile.data.model.UserRequest
@@ -110,10 +117,18 @@ class ScanViewModel(val repository: ScanRepository) : ViewModel() {
 
     /**
      * Process scan results from SDK - main entry point called by Activity
+     * @param isDoctorModeSelected true if doctor selected Patient mode
+     * @param patientDetails patient info from bottom sheet (only when doctor + Patient mode)
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun processScanResults(finalResults: VitalSignsResults?) {
-        val request = createSaveScanHistoryRequest(finalResults)
+    fun processScanResults(
+        finalResults: VitalSignsResults?,
+        isDoctorModeSelected: Boolean = false,
+        patientDetails: Model.SubjectDetails? = null,
+        patientEmail: String? = null
+    ) {
+        val userProfile = resolveUserProfile(isDoctorModeSelected, patientDetails, patientEmail)
+        val request = createSaveScanHistoryRequest(finalResults, userProfile)
 
         if (!validateScanResults(request)) {
             _scanResult.postValue(ScanResultState.ValidationError)
@@ -121,6 +136,71 @@ class ScanViewModel(val repository: ScanRepository) : ViewModel() {
         }
         saveScanHistory(request)
     }
+
+    /**
+     * Resolve which user profile data to include in the request:
+     * - Normal user / Doctor+Self: all profile fields empty
+     * - Doctor+Patient: use patient info collected from bottom sheet
+     */
+    private fun resolveUserProfile(
+        isDoctorModeSelected: Boolean,
+        patientDetails: Model.SubjectDetails?,
+        patientEmail: String?
+    ): UserProfileData {
+        return if (isDoctorModeSelected && patientDetails != null) {
+            // Doctor + Patient mode: use bottom sheet patient info
+            UserProfileData(
+                name = patientDetails.name,
+                email = patientEmail,
+                age = patientDetails.age?.toInt(),
+                sex = when (patientDetails.sex) {
+                    Sex.MALE -> Gender.male
+                    Sex.FEMALE -> Gender.female
+                    else -> null
+                },
+                weight = patientDetails.weight,
+                weightUnit = when (patientDetails.weightUnit) {
+                    "lb" -> WeightUnit.LB
+                    else -> WeightUnit.KG
+                },
+                height = patientDetails.height,
+                heightUnit = when (patientDetails.heightUnit) {
+                    "ft" -> HeightUnit.FT
+                    else -> HeightUnit.CM
+                },
+                smoker = when (patientDetails.isSmoker) {
+                    SmokingStatus.SMOKER -> SmokerUnit.smoker
+                    SmokingStatus.NON_SMOKER -> SmokerUnit.non_smoker
+                    else -> SmokerUnit.non_smoker
+                }
+            )
+        } else {
+            // Normal user or Doctor+Self: send empty profile fields
+            UserProfileData(
+                name = null,
+                email = null,
+                age = null,
+                sex = null,
+                weight = null,
+                weightUnit = null,
+                height = null,
+                heightUnit = null,
+                smoker = null
+            )
+        }
+    }
+
+    private data class UserProfileData(
+        val name: String?,
+        val email: String?,
+        val age: Int?,
+        val sex: Gender?,
+        val weight: Double?,
+        val weightUnit: WeightUnit?,
+        val height: Double?,
+        val heightUnit: HeightUnit?,
+        val smoker: SmokerUnit?
+    )
 
     /**
      * Validate that required vital signs are present
@@ -235,7 +315,7 @@ class ScanViewModel(val repository: ScanRepository) : ViewModel() {
      * Moved from VitalScanActivity
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun createSaveScanHistoryRequest(finalResults: VitalSignsResults?): SaveScanHistoryRequest {
+    private fun createSaveScanHistoryRequest(finalResults: VitalSignsResults?, userProfile: UserProfileData): SaveScanHistoryRequest {
         // Extract heart rate
         val heartRateN = finalResults?.getResult(VitalSignTypes.PULSE_RATE) as VitalSignPulseRate
         val heartRate = heartRateN.value
@@ -322,6 +402,15 @@ class ScanViewModel(val repository: ScanRepository) : ViewModel() {
         val meanArterialPressure =  (finalResults.getResult(VitalSignTypes.MEAN_ARTERIAL_PRESSURE) as? VitalSignMeanArterialPressure)?.value ?: 0
 
         val requestResponse = SaveScanHistoryRequest(
+            name = userProfile.name,
+            email = userProfile.email,
+            age = userProfile.age,
+            sex = userProfile.sex,
+            weight = userProfile.weight,
+            weightUnit = userProfile.weightUnit,
+            height = userProfile.height,
+            heightUnit = userProfile.heightUnit,
+            smokerStatus = userProfile.smoker,
             heartRate = heartRate,
             heartRateLevel = heartRateLevel,
             breathingRate = breathingRate,

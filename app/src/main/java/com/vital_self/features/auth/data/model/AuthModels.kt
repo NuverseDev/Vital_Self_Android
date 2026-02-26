@@ -70,7 +70,8 @@ data class ProfileUpdateRequest(
     val weight: Double? = null,
     val weightUnit: String? = null,
     val gender: String? = null,
-    val smokerStatus: String? = null
+    val smokerStatus: String? = null,
+    val doctor: Boolean
 )
 
 data class ProfileUpdateResponse(

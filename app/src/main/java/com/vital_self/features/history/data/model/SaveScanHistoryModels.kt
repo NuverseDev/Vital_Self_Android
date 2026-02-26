@@ -2,8 +2,51 @@ package com.vital_self.features.history.data.model
 
 import com.google.gson.annotations.SerializedName
 
+enum class Gender {
+    @SerializedName("male") male,
+    @SerializedName("female") female,
+    @SerializedName("other") other
+}
+
+enum class WeightUnit {
+    @SerializedName("kg") KG,
+    @SerializedName("lb") LB
+}
+
+enum class HeightUnit {
+    @SerializedName("cm") CM,
+    @SerializedName("ft") FT
+}
+
+enum class SmokerUnit {
+    @SerializedName("smoker") smoker,
+    @SerializedName("non_smoker") non_smoker,
+    @SerializedName("undefined") undefind
+}
+
 // Request body for POST /api/user/scan-history
 data class SaveScanHistoryRequest(
+    // User profile fields
+    @SerializedName("name")
+    val name: String? = null,
+    @SerializedName("email")
+    val email: String? = null,
+    @SerializedName("age")
+    val age: Int? = null,
+    @SerializedName("gender")
+    val sex: Gender? = null,
+    @SerializedName("weight")
+    val weight: Double? = null,
+    @SerializedName("weightUnit")
+    val weightUnit: WeightUnit? = WeightUnit.KG,
+    @SerializedName("height")
+    val height: Double? = null,
+    @SerializedName("heightUnit")
+    val heightUnit: HeightUnit? = HeightUnit.CM,
+    @SerializedName("smokerStatus")
+    val smokerStatus: SmokerUnit? = SmokerUnit.undefind,
+
+    // Vital sign fields
     @SerializedName("heartRate")
     val heartRate: Int?,
     @SerializedName("heartRateLevel")

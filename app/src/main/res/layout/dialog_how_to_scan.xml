@@ -94,7 +94,7 @@
                         android:layout_marginTop="@dimen/dp_12"
                         android:gravity="center"
                         android:text="Important checks to be consider before scan"
-                        android:textSize="@dimen/sp_14"
+                        android:textSize="@dimen/sp_20"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/header" />
 
@@ -123,7 +123,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_8"
                             android:text="@string/point_one"
-                            android:textSize="@dimen/sp_13"
+                            android:textSize="@dimen/sp_16"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toEndOf="@id/point_one"
@@ -155,7 +155,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_8"
                             android:text="@string/point_two"
-                            android:textSize="@dimen/sp_13"
+                            android:textSize="@dimen/sp_16"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toEndOf="@id/point_two"
@@ -187,7 +187,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_8"
                             android:text="@string/point_three"
-                            android:textSize="@dimen/sp_13"
+                            android:textSize="@dimen/sp_16"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/point_three"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -218,7 +218,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_8"
                             android:text="@string/point_four"
-                            android:textSize="@dimen/sp_13"
+                            android:textSize="@dimen/sp_16"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/point_four"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -249,7 +249,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_8"
                             android:text="@string/point_five"
-                            android:textSize="@dimen/sp_13"
+                            android:textSize="@dimen/sp_16"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/point_five"
                             app:layout_constraintTop_toTopOf="parent" />

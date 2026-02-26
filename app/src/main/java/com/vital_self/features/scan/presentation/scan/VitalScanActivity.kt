@@ -136,7 +136,9 @@ class VitalScanActivity : BaseActivity(),
     private var showPatientBottomSheet = mutableStateOf(false)
     private var patientInfoState = mutableStateOf(PatientInfoState())
     private var tempPatientSubject: Model.SubjectDetails? = null
+    private var tempPatientEmail: String? = null
     private var composeView: ComposeView? = null
+    private var isDoctorModeSelected = false
 
     private val faceDetectionNormal: Bitmap? by lazy {
         ContextCompat.getDrawable(this, R.drawable.ic_correct_frame)?.toBitmap()
@@ -211,7 +213,7 @@ class VitalScanActivity : BaseActivity(),
         val menuMyResetApp = navigationView.findViewById<LinearLayout>(R.id.menu_my_reset_app)
         val appVersion = navigationView.findViewById<TextView>(R.id.app_version)
 
-        appVersion.text = getString(R.string.version, BuildConfig.VERSION)
+        appVersion.text = "App ${getString(R.string.version, BuildConfig.VERSION)} | sdk ${getString(R.string.version, com.biosensesignal.sdk.BuildConfig.VERSION_NAME)}"
 
         if (PreferenceManager.appVersionMatch){
             menuHistory.visibility = View.GONE
@@ -365,7 +367,8 @@ class VitalScanActivity : BaseActivity(),
                         dialogClickListener = object : DialogClickListener {
                             override fun onButton1Clicked() {
                             }
-                        })
+                        }
+                    )
                 }
                 is ScanResultState.Idle -> {
                     // Do nothing
@@ -467,42 +470,66 @@ class VitalScanActivity : BaseActivity(),
     private fun createSession() {
         try {
             val key = PreferenceManager.Key
-
             val licenseDetails = LicenseDetails(key)
+            // Load user profile from preferences
+            val authUser = PreferenceManager.authUser
+            val userInfo = buildUserInformationFromProfile(authUser)
 
-            if (subject != null){
+            Log.d(TAG, "createSession: create session user information $authUser")
 
-                val sex = when(subject?.sex){
-                    Sex.MALE -> Sex.MALE
-                    Sex.FEMALE -> Sex.FEMALE
-                    else  -> Sex.UNSPECIFIED
-                }
-
-                val userInformation = UserInformation.Builder()
-                    .setSex(sex)
-                    .setAge(subject!!.age!!.toDouble())
-                    .setWeight(subject!!.weight!!.toDouble())
-                    .setHeight(subject!!.height!!.toDouble())
-                    .setSmokingStatus(subject!!.isSmoker).build()
-
+            if (authUser?.age.toString().isNullOrEmpty() || authUser?.height.toString().isNullOrEmpty()){
+                Log.d(TAG, "createSession: user null")
                 session = FaceSessionBuilder(applicationContext).apply {
-                    withUserInformation(userInformation)
                     withImageListener(this@VitalScanActivity)
                     withDetectionAlwaysOn(true)
                     withVitalSignsListener(this@VitalScanActivity)
                     withSessionInfoListener(this@VitalScanActivity)
                 }.run { build(licenseDetails) }
             }else{
+                Log.d(TAG, "createSession: user not null")
                 session = FaceSessionBuilder(applicationContext).apply {
+                    userInfo?.let { withUserInformation(it) }
                     withImageListener(this@VitalScanActivity)
                     withDetectionAlwaysOn(true)
                     withVitalSignsListener(this@VitalScanActivity)
                     withSessionInfoListener(this@VitalScanActivity)
                 }.run { build(licenseDetails) }
             }
+
+
         } catch (e: HealthMonitorException) {
             showError(e.errorCode)
         }
+    }
+
+    /**
+     * Build UserInformation from AuthUser profile.
+     * Returns null if profile is not filled (no age/height/weight).
+     */
+    private fun buildUserInformationFromProfile(authUser: com.vital_self.features.auth.data.model.AuthUser?): UserInformation? {
+        if (authUser == null) return null
+        val age = authUser.age?.toDouble() ?: return null
+        val height = authUser.height ?: return null
+        val weight = authUser.weight ?: return null
+
+        val sex = when (authUser.gender?.lowercase()) {
+            "male" -> Sex.MALE
+            "female" -> Sex.FEMALE
+            else -> Sex.UNSPECIFIED
+        }
+        val smokingStatus = when (authUser.smokerStatus?.lowercase()) {
+            "smoker" -> SmokingStatus.SMOKER
+            "non_smoker" -> SmokingStatus.NON_SMOKER
+            else -> SmokingStatus.UNSPECIFIED
+        }
+
+        return UserInformation.Builder()
+            .setSex(sex)
+            .setAge(age)
+            .setWeight(weight)
+            .setHeight(height)
+            .setSmokingStatus(smokingStatus)
+            .build()
     }
 
     private fun setListener() {
@@ -511,6 +538,70 @@ class VitalScanActivity : BaseActivity(),
         }
         binding.tvStop.setOnClickListener {
             handleStartStopButtonClicked()
+        }
+        binding.measurementsLayout.btnSelf.setOnClickListener {
+            if (isDoctorModeSelected) {
+                isDoctorModeSelected = false
+                animateSelectorTo(false)
+            }
+        }
+        binding.measurementsLayout.btnDoctor.setOnClickListener {
+            if (!isDoctorModeSelected) {
+                isDoctorModeSelected = true
+                animateSelectorTo(true)
+            }
+        }
+
+        // Set up the selector indicator size after layout
+        binding.measurementsLayout.selfDrLayout.post {
+            setupSelectorIndicator()
+        }
+    }
+
+    private fun setupSelectorIndicator() {
+        val container = binding.measurementsLayout.selfDrLayout
+        val indicator = binding.measurementsLayout.selectorIndicator
+        val padding = indicator.resources.getDimensionPixelSize(R.dimen.dp_4)
+        val halfWidth = (container.width - padding * 2) / 2
+        indicator.layoutParams = indicator.layoutParams.apply {
+            width = halfWidth
+        }
+        // Position at Self (left) by default
+        indicator.translationX = 0f
+        indicator.requestLayout()
+    }
+
+    private fun animateSelectorTo(toDoctor: Boolean) {
+        val container = binding.measurementsLayout.selfDrLayout
+        val indicator = binding.measurementsLayout.selectorIndicator
+        val padding = indicator.resources.getDimensionPixelSize(R.dimen.dp_4)
+        val halfWidth = (container.width - padding * 2) / 2
+
+        val targetX = if (toDoctor) halfWidth.toFloat() else 0f
+
+        indicator.animate()
+            .translationX(targetX)
+            .setDuration(250)
+            .setInterpolator(android.view.animation.DecelerateInterpolator())
+            .start()
+
+        updateSelfDoctorTextColors(toDoctor)
+    }
+
+    private fun updateSelfDoctorTextColors(toDoctor: Boolean) {
+        val whiteColor = ContextCompat.getColor(this, R.color.white_both_theme)
+        val grayColor = ContextCompat.getColor(this, R.color.secondary_front_color)
+
+        if (toDoctor) {
+            binding.measurementsLayout.tvDoctorLabel.setTextColor(whiteColor)
+            binding.measurementsLayout.ivDoctorIcon.setColorFilter(whiteColor)
+            binding.measurementsLayout.tvSelfLabel.setTextColor(grayColor)
+            binding.measurementsLayout.ivSelfIcon.setColorFilter(grayColor)
+        } else {
+            binding.measurementsLayout.tvSelfLabel.setTextColor(whiteColor)
+            binding.measurementsLayout.ivSelfIcon.setColorFilter(whiteColor)
+            binding.measurementsLayout.tvDoctorLabel.setTextColor(grayColor)
+            binding.measurementsLayout.ivDoctorIcon.setColorFilter(grayColor)
         }
     }
 
@@ -540,14 +631,17 @@ class VitalScanActivity : BaseActivity(),
                 // scan ready
                 binding.tvStop.visibility = View.GONE
                 binding.measurementsLayout.constraintLayout2.visibility = View.INVISIBLE
+                val isDoctor = PreferenceManager.authUser?.doctor == true
+                binding.measurementsLayout.selfDrLayout.visibility = if (isDoctor) View.VISIBLE else View.GONE
                 binding.measurementsLayout.tvBtnStartStop.text = "Measure Now"
                 binding.measurementsLayout.btnStartStop.visibility = View.VISIBLE
                 binding.measurementsLayout.tvScanningMsg.visibility = View.VISIBLE
                 binding.measurementsLayout.tvScanningErrorDesc.visibility = View.GONE
-                if (subject?.name == null){
-                     binding.measurementsLayout.tvScanningMsg.text = "Hello, Ready to measure your Vital Signs? "
-                }else{
-                      binding.measurementsLayout.tvScanningMsg.text = "${subject?.name}, Ready to measure your Vital Signs? "
+                val userName = PreferenceManager.authUser?.name
+                if (userName.isNullOrBlank()) {
+                    binding.measurementsLayout.tvScanningMsg.text = "Hello, Ready to measure your Vital Signs? "
+                } else {
+                    binding.measurementsLayout.tvScanningMsg.text = "$userName, Ready to measure your Vital Signs? "
                 }
 
             }
@@ -555,6 +649,7 @@ class VitalScanActivity : BaseActivity(),
                 // scan progress
                 binding.tvStop.visibility = View.VISIBLE
                 binding.measurementsLayout.constraintLayout2.visibility = View.VISIBLE
+                binding.measurementsLayout.selfDrLayout.visibility = View.INVISIBLE
                 binding.measurementsLayout.btnStartStop.visibility = View.GONE
                 binding.measurementsLayout.tvScanningMsg.visibility = View.GONE
                 binding.measurementsLayout.tvScanningErrorDesc.visibility = View.VISIBLE
@@ -564,6 +659,7 @@ class VitalScanActivity : BaseActivity(),
                 binding.tvStop.visibility = View.GONE
                 binding.measurementsLayout.constraintLayout2.visibility = View.INVISIBLE
                 binding.measurementsLayout.btnStartStop.visibility = View.INVISIBLE
+                binding.measurementsLayout.selfDrLayout.visibility = View.INVISIBLE
                 binding.measurementsLayout.tvScanningMsg.visibility = View.VISIBLE
                 binding.measurementsLayout.tvScanningErrorDesc.visibility = View.VISIBLE
                
@@ -699,7 +795,12 @@ class VitalScanActivity : BaseActivity(),
                 return@runOnUiThread
             }
 
-            viewModel.processScanResults(finalResults)
+            viewModel.processScanResults(
+                finalResults = finalResults,
+                isDoctorModeSelected = isDoctorModeSelected,
+                patientDetails = tempPatientSubject,
+                patientEmail = tempPatientEmail
+            )
 
             // If in doctor mode, reset session to user's own data for next scan
             if (tempPatientSubject != null) {
@@ -747,14 +848,11 @@ class VitalScanActivity : BaseActivity(),
                         showNoCreditsDialog()
                     }
                     else -> {
-                        // Check if user is a doctor
-                        val isDoctor = PreferenceManager.authUser?.doctor == true
-
-                        if (isDoctor) {
-                            // Show patient info bottom sheet for doctor mode
+                        if (isDoctorModeSelected) {
+                            // Doctor mode: show patient info bottom sheet first
                             showPatientInfoBottomSheet()
                         } else {
-                            // Normal flow - show DialogHowToScan
+                            // Self mode: show best practices dialog directly
                             showHowToScanDialogAndStartScan()
                         }
                     }
@@ -987,6 +1085,9 @@ class VitalScanActivity : BaseActivity(),
                     errorField = PatientFieldError.NONE
                 )
             }
+            is PatientInfoEvent.EmailChanged -> {
+                patientInfoState.value = patientInfoState.value.copy(email = event.value)
+            }
             is PatientInfoEvent.AgeChanged -> {
                 patientInfoState.value = patientInfoState.value.copy(
                     age = event.value,
@@ -1028,6 +1129,7 @@ class VitalScanActivity : BaseActivity(),
                 val validation = validatePatientInfo(patientInfoState.value)
                 if (validation == PatientValidation.VALID) {
                     val patientDetails = createPatientSubjectDetails(patientInfoState.value)
+                    tempPatientEmail = patientInfoState.value.email.ifBlank { null }
                     hidePatientInfoBottomSheet()
                     handlePatientSubmit(patientDetails)
                 } else {
@@ -1132,11 +1234,10 @@ class VitalScanActivity : BaseActivity(),
 
     private fun createSessionWithPatient(patientDetails: Model.SubjectDetails) {
         try {
-            // Create new session with patient data
             val key = PreferenceManager.Key
             val licenseDetails = LicenseDetails(key)
 
-            val sex = when(patientDetails.sex) {
+            val sex = when (patientDetails.sex) {
                 Sex.MALE -> Sex.MALE
                 Sex.FEMALE -> Sex.FEMALE
                 else -> Sex.UNSPECIFIED
@@ -1149,6 +1250,8 @@ class VitalScanActivity : BaseActivity(),
                 .setHeight(patientDetails.height ?: 0.0)
                 .setSmokingStatus(patientDetails.isSmoker)
                 .build()
+
+            Log.d(TAG, "createSession: create session patient information $userInformation")
 
             session = FaceSessionBuilder(applicationContext).apply {
                 withUserInformation(userInformation)
@@ -1185,9 +1288,7 @@ class VitalScanActivity : BaseActivity(),
     private fun resetSessionToUserData() {
         // Clear temporary patient data
         tempPatientSubject = null
-
-        // Reset to use user's own SubjectDetails from PreferenceManager
-        subject = PreferenceManager.subjectDetails
+        tempPatientEmail = null
 
         // Terminate current session
         session?.terminate()
