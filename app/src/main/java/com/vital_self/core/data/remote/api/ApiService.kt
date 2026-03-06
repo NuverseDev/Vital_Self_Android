@@ -6,6 +6,10 @@ import com.vital_self.core.data.remote.model.CheckVersionRequest
 import com.vital_self.core.data.remote.model.CheckVersionResponse
 import com.vital_self.features.packages.data.model.AvailableCreditsResponse
 import com.vital_self.features.packages.data.model.CreditPackagesResponse
+import com.vital_self.features.packages.data.model.PaymentInitiateRequest
+import com.vital_self.features.packages.data.model.PaymentInitiateResponse
+import com.vital_self.features.packages.data.model.PaymentVerifyRequest
+import com.vital_self.features.packages.data.model.PaymentVerifyResponse
 import com.vital_self.features.packages.data.model.PurchaseCreditRequest
 import com.vital_self.features.packages.data.model.PurchaseCreditResponse
 import com.vital_self.features.auth.data.model.ForgotPasswordRequest
@@ -81,6 +85,12 @@ interface ApiService {
 
     @GET("/api/user/available-credits")
     suspend fun getAvailableCredits(): Response<AvailableCreditsResponse>
+
+    @POST("/api/payment/initiate")
+    suspend fun initiatePayment(@Body requestBody: PaymentInitiateRequest): Response<PaymentInitiateResponse>
+
+    @POST("/api/payment/verify")
+    suspend fun verifyPayment(@Body requestBody: PaymentVerifyRequest): Response<PaymentVerifyResponse>
 
     @GET("/api/scan-history/pdf/{id}")
     suspend fun getScanHistoryPdf(@retrofit2.http.Path("id") id: Int): Response<PdfDownloadResponse>

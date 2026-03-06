@@ -3,6 +3,7 @@ package com.vital_self.features.packages.presentation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.vital_self.core.data.remote.model.Status
+import com.vital_self.features.billing.PaymentActivity
 import com.vital_self.features.packages.data.repository.PackagesRepository
 import com.vital_self.features.packages.presentation.viewmodel.PackagesViewModelFactory
 import com.vital_self.features.packages.presentation.PackagesScreenContent
@@ -29,7 +31,11 @@ class PackagesActivity : ComponentActivity() {
         PackagesViewModelFactory(PackagesRepository())
     }
 
+    private var pendingReference: String? = null
+
     companion object {
+        private const val PAYMENT_REQUEST_CODE = 1001
+
         fun startActivity(activity: Activity) {
             Intent(activity, PackagesActivity::class.java).run {
                 activity.startActivity(this)
@@ -55,6 +61,8 @@ class PackagesActivity : ComponentActivity() {
                 val creditPackagesData by packagesViewModel.creditPackagesData.observeAsState()
                 val userPackagesData by packagesViewModel.userPackagesData.observeAsState()
                 val purchaseData by packagesViewModel.purchaseData.observeAsState()
+                val paymentInitiateData by packagesViewModel.paymentInitiateData.observeAsState()
+                val paymentVerifyData by packagesViewModel.paymentVerifyData.observeAsState()
 
                 // Handle Credit Packages API response
                 LaunchedEffect(creditPackagesData) {
@@ -108,7 +116,7 @@ class PackagesActivity : ComponentActivity() {
                     }
                 }
 
-                // Handle Purchase API response
+                // Handle Purchase API response (kept for backward compatibility)
                 LaunchedEffect(purchaseData) {
                     when (purchaseData?.status) {
                         Status.LOADING -> {
@@ -124,7 +132,6 @@ class PackagesActivity : ComponentActivity() {
                                 purchaseSuccess = true,
                                 purchaseError = null
                             )
-                            // Refresh user packages to show the new purchase
                             packagesViewModel.getUserPackages(this@PackagesActivity)
                             packagesViewModel.resetPurchaseState()
                         }
@@ -133,6 +140,75 @@ class PackagesActivity : ComponentActivity() {
                                 isPurchasing = false,
                                 purchaseError = purchaseData?.message ?: "Failed to purchase package"
                             )
+                        }
+                        else -> {}
+                    }
+                }
+
+                // Handle Payment Initiate API response
+                LaunchedEffect(paymentInitiateData) {
+                    when (paymentInitiateData?.status) {
+                        Status.LOADING -> {
+                            screenState = screenState.copy(
+                                isPurchasing = true,
+                                purchaseError = null
+                            )
+                        }
+                        Status.SUCCESS -> {
+                            screenState = screenState.copy(
+                                isPurchasing = false,
+                                showPurchaseDialog = false,
+                                purchaseError = null
+                            )
+                            val data = paymentInitiateData?.data?.data
+                            if (data != null) {
+                                pendingReference = data.reference
+                                PaymentActivity.startActivity(
+                                    this@PackagesActivity,
+                                    data.authorizationUrl,
+                                    data.reference,
+                                    PAYMENT_REQUEST_CODE
+                                )
+                            }
+                            packagesViewModel.resetPaymentState()
+                        }
+                        Status.ERROR -> {
+                            screenState = screenState.copy(
+                                isPurchasing = false,
+                                purchaseError = paymentInitiateData?.message ?: "Failed to initiate payment"
+                            )
+                            packagesViewModel.resetPaymentState()
+                        }
+                        else -> {}
+                    }
+                }
+
+                // Handle Payment Verify API response
+                LaunchedEffect(paymentVerifyData) {
+                    when (paymentVerifyData?.status) {
+                        Status.LOADING -> {
+                            screenState = screenState.copy(
+                                isPurchasing = true,
+                                purchaseError = null
+                            )
+                        }
+                        Status.SUCCESS -> {
+                            screenState = screenState.copy(
+                                isPurchasing = false,
+                                purchaseSuccess = true,
+                                purchaseError = null
+                            )
+                            packagesViewModel.getUserPackages(this@PackagesActivity)
+                            packagesViewModel.resetPaymentState()
+                            pendingReference = null
+                        }
+                        Status.ERROR -> {
+                            screenState = screenState.copy(
+                                isPurchasing = false,
+                                purchaseError = paymentVerifyData?.message ?: "Payment verification failed"
+                            )
+                            packagesViewModel.resetPaymentState()
+                            pendingReference = null
                         }
                         else -> {}
                     }
@@ -159,7 +235,7 @@ class PackagesActivity : ComponentActivity() {
                             }
                             PackagesScreenEvent.ConfirmPurchase -> {
                                 screenState.selectedPackage?.let { pkg ->
-                                    packagesViewModel.purchaseCredit(this@PackagesActivity, pkg.id)
+                                    packagesViewModel.initiatePayment(this@PackagesActivity, pkg.id)
                                 }
                             }
                             PackagesScreenEvent.DismissPurchaseDialog -> {
@@ -177,6 +253,23 @@ class PackagesActivity : ComponentActivity() {
                         }
                     }
                 )
+            }
+        }
+    }
+
+    @Deprecated("Use Activity Result API")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PAYMENT_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                val reference = data?.getStringExtra(PaymentActivity.EXTRA_REFERENCE)
+                    ?: pendingReference
+                if (reference != null) {
+                    packagesViewModel.verifyPayment(this, reference)
+                }
+            } else {
+                Toast.makeText(this, "Payment cancelled", Toast.LENGTH_SHORT).show()
+                pendingReference = null
             }
         }
     }

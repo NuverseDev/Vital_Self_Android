@@ -88,3 +88,45 @@ data class AvailableCreditsData(
     val freeAvailableCredits: Int,
     val sumofAvailableCredits: Int
 )
+
+// Payment Initiate Request/Response
+data class PaymentInitiateRequest(
+    val packageId: Int
+)
+
+data class PaymentInitiateResponse(
+    val message: String,
+    val status: Boolean,
+    val data: PaymentInitiateData?
+)
+
+data class PaymentInitiateData(
+    @SerializedName("authorization_url")
+    val authorizationUrl: String,
+    @SerializedName("access_code")
+    val accessCode: String,
+    val reference: String
+)
+
+// Payment Verify Request/Response
+data class PaymentVerifyRequest(
+    val reference: String
+)
+
+data class PaymentVerifyResponse(
+    val message: String,
+    val status: Boolean,
+    val data: PaymentVerifyData?
+)
+
+data class PaymentVerifyData(
+    @SerializedName("payment_status")
+    val paymentStatus: String,
+    val reference: String,
+    val amount: Double,
+    val currency: String,
+    @SerializedName("paid_at")
+    val paidAt: String,
+    @SerializedName("credits_allocated")
+    val creditsAllocated: Boolean
+)

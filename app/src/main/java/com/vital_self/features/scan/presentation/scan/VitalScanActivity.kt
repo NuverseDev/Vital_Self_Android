@@ -469,16 +469,16 @@ class VitalScanActivity : BaseActivity(),
 
     private fun createSession() {
         try {
-            val key = PreferenceManager.Key
+
+            val key = PreferenceManager.Key ?: ""
+
             val licenseDetails = LicenseDetails(key)
+            Log.d(TAG, "createSession: license key $key")
             // Load user profile from preferences
             val authUser = PreferenceManager.authUser
             val userInfo = buildUserInformationFromProfile(authUser)
 
-            Log.d(TAG, "createSession: create session user information $authUser")
-
-            if (authUser?.age.toString().isNullOrEmpty() || authUser?.height.toString().isNullOrEmpty()){
-                Log.d(TAG, "createSession: user null")
+            if (authUser?.age == null || authUser?.height == null || authUser?.weight == null){
                 session = FaceSessionBuilder(applicationContext).apply {
                     withImageListener(this@VitalScanActivity)
                     withDetectionAlwaysOn(true)
@@ -643,7 +643,6 @@ class VitalScanActivity : BaseActivity(),
                 } else {
                     binding.measurementsLayout.tvScanningMsg.text = "$userName, Ready to measure your Vital Signs? "
                 }
-
             }
             1 -> {
                 // scan progress
@@ -662,10 +661,11 @@ class VitalScanActivity : BaseActivity(),
                 binding.measurementsLayout.selfDrLayout.visibility = View.INVISIBLE
                 binding.measurementsLayout.tvScanningMsg.visibility = View.VISIBLE
                 binding.measurementsLayout.tvScanningErrorDesc.visibility = View.VISIBLE
-               
 
             }
-            else -> {}
+            else -> {
+
+            }
         }
     }
 
